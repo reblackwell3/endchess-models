@@ -1,12 +1,17 @@
+# Ignore source files
 src/
 *.ts
 *.tsx
 *.spec.ts
 *.spec.tsx
+
+# Ignore configuration files
 .vscode/
 .git/
 node_modules/
-
 .prettierrc
 tsconfig.json
 .eslintrc.json
+
+# Do not ignore the dist directory
+!dist/
