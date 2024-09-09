@@ -11,4 +11,3 @@ const schema = new mongoose_1.default.Schema({
 });
 const Puzzle = mongoose_1.default.model('SystemGameData', schema);
 exports.default = Puzzle;
-//# sourceMappingURL=systemGameDataModel.js.map

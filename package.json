@@ -1,18 +1,13 @@
 {
   "name": "endchess-models",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "jest --config jest.config.cjs -- .unit.",
-    "test:integration": "jest --config jest.config.cjs -- .integration.",
-    "start": "npm run serve",
     "tsc": "./node_modules/typescript/bin/tsc",
     "build": "tsc",
-    "serve": "node dist/server.js",
-    "postinstall": "npm run build",
-    "dev": "export NODE_ENV=dev && nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/server.ts"
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
