@@ -1,0 +1,35 @@
+{
+  "name": "endchess-models",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --config jest.config.cjs -- .unit.",
+    "test:integration": "jest --config jest.config.cjs -- .integration.",
+    "start": "npm run serve",
+    "tsc": "./node_modules/typescript/bin/tsc",
+    "build": "tsc",
+    "serve": "node dist/server.js",
+    "postinstall": "npm run build",
+    "dev": "export NODE_ENV=dev && nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/server.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reblackwell3/endchess-models.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/reblackwell3/endchess-models/issues"
+  },
+  "homepage": "https://github.com/reblackwell3/endchess-models#readme",
+  "dependencies": {
+    "mongoose": "^8.6.1",
+    "typescript": "^5.5.4"
+  },
+  "devDependencies": {
+    "@types/mongoose": "^5.11.97",
+    "@types/typescript": "^2.0.0"
+  }
+}
