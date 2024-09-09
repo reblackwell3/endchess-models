@@ -56,3 +56,4 @@ schema.statics.findOrCreate = function (providerId) {
 };
 const SystemImportData = (0, mongoose_1.model)('SystemImportData', schema);
 exports.default = SystemImportData;
+//# sourceMappingURL=systemImportDataModel.js.map

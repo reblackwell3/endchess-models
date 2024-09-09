@@ -77,3 +77,4 @@ userSchema.statics.findOrCreate = function (profile, accessToken, refreshToken) 
 };
 const User = (0, mongoose_1.model)('User', userSchema);
 exports.default = User;
+//# sourceMappingURL=userModel.js.map

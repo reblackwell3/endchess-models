@@ -31,3 +31,4 @@ const ratingSchema = new mongoose_1.Schema({
     rating: { type: Number, required: true },
 });
 const Rating = mongoose_1.default.model('Rating', ratingSchema);
+//# sourceMappingURL=ratingModel.js.map

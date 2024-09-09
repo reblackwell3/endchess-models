@@ -6,3 +6,7 @@ src/
 .vscode/
 .git/
 node_modules/
+
+.prettierrc
+tsconfig.json
+.eslintrc.json

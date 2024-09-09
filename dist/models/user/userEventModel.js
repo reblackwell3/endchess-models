@@ -32,3 +32,4 @@ const userEventSchema = new mongoose_1.Schema({
     event: { type: String, required: true }, //This will be things like complete... can query this table and system data tables to know what content to show
 });
 const UserEvent = mongoose_1.default.model('UserEvent', userEventSchema);
+//# sourceMappingURL=userEventModel.js.map

@@ -19,3 +19,4 @@ const puzzleSchema = new mongoose_1.default.Schema({
 });
 const Puzzle = mongoose_1.default.model('Puzzle', puzzleSchema);
 exports.default = Puzzle;
+//# sourceMappingURL=puzzleModel.js.map
