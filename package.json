@@ -1,12 +1,13 @@
 {
   "name": "endchess-models",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "clean": "rm -rf dist",
     "tsc": "./node_modules/typescript/bin/tsc",
-    "build": "tsc",
+    "build": "npm run clean && tsc",
     "prepublishOnly": "npm run build"
   },
   "repository": {

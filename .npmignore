@@ -13,5 +13,10 @@ node_modules/
 tsconfig.json
 .eslintrc.json
 
-# Do not ignore the dist directory
+# Ignore source map files
+*.d.ts.map
+*.js.map
+
+# Do not ignore the dist directory and .d.ts files
 !dist/
+!dist/**/*.d.ts

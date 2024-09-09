@@ -29,4 +29,3 @@ const gameSchema = new mongoose_1.Schema({
 });
 const Game = (0, mongoose_1.model)('Game', gameSchema);
 exports.default = Game;
-//# sourceMappingURL=gameModel.js.map

@@ -15,4 +15,3 @@ var systemImportDataModel_1 = require("./models/system/systemImportDataModel");
 Object.defineProperty(exports, "SystemImportData", { enumerable: true, get: function () { return __importDefault(systemImportDataModel_1).default; } });
 var userModel_1 = require("./models/user/userModel");
 Object.defineProperty(exports, "User", { enumerable: true, get: function () { return __importDefault(userModel_1).default; } });
-//# sourceMappingURL=index.js.map
