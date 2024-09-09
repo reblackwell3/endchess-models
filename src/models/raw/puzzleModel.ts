@@ -1,7 +1,19 @@
-// backend/puzzles/puzzleModel.js
 import mongoose from 'mongoose';
 
-const puzzleSchema = new mongoose.Schema({
+export interface IPuzzle {
+  PuzzleId: string;
+  FEN: string;
+  Moves: string;
+  Rating: number;
+  RatingDeviation: number;
+  Popularity: number;
+  NbPlays: number;
+  Themes: string;
+  GameUrl: string;
+  OpeningTags: string;
+}
+
+const puzzleSchema = new mongoose.Schema<IPuzzle>({
   PuzzleId: String,
   FEN: String,
   Moves: String,
@@ -14,6 +26,6 @@ const puzzleSchema = new mongoose.Schema({
   OpeningTags: String,
 });
 
-const Puzzle = mongoose.model('Puzzle', puzzleSchema);
+const Puzzle = mongoose.model<IPuzzle>('Puzzle', puzzleSchema);
 
 export default Puzzle;

@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 
 // Define the Rating interface extending Document
-interface IRating extends Document {
+export interface IRating extends Document {
   providerId: string;
   feature: string;
   rating: number;

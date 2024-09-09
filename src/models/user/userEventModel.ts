@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 
 // Define the UserEvent interface extending Document
-interface IUserEvent extends Document {
+export interface IUserEvent extends Document {
   providerId: string;
   feature: string;
   itemId: string; // See below
