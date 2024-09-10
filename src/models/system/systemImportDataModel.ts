@@ -1,20 +1,14 @@
 import { Document, model, Schema, Model } from 'mongoose';
 
-export interface ChessComLink {
+export interface Link {
+  site: string;
   url: string;
-  isImported: boolean;
-}
-
-export interface LichessLink {
-  since: number;
-  until: number;
   isImported: boolean;
 }
 
 export interface ISystemImportDataDocument extends Document {
   providerId: string;
-  chessComLinks: ChessComLink[];
-  lichessLinks: LichessLink[];
+  links: Link[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,6 +19,12 @@ export interface ISystemImportDataModel extends Model<ISystemImportData> {
   findOrCreate: (providerId: string) => Promise<ISystemImportData>;
 }
 
+const LinkSchema = new Schema<Link>({
+  site: { type: String, required: true },
+  url: { type: String, required: true },
+  isImported: { type: Boolean, required: true, default: false },
+});
+
 const schema = new Schema<ISystemImportData>(
   {
     providerId: {
@@ -32,34 +32,10 @@ const schema = new Schema<ISystemImportData>(
       required: true,
       unique: true,
     },
-    chessComLinks: [
-      {
-        url: {
-          type: String,
-          required: true,
-        },
-        isImported: {
-          type: Boolean,
-          required: true,
-        },
-      },
-    ],
-    lichessLinks: [
-      {
-        since: {
-          type: Number,
-          required: true,
-        },
-        until: {
-          type: Number,
-          required: true,
-        },
-        isImported: {
-          type: Boolean,
-          required: true,
-        },
-      },
-    ],
+    links: {
+      type: [LinkSchema],
+      required: true,
+    },
   },
   { timestamps: true },
 );
@@ -67,7 +43,7 @@ const schema = new Schema<ISystemImportData>(
 schema.statics.findOrCreate = async function (providerId: string) {
   let SystemImportData = await this.findOne({ providerId });
   if (!SystemImportData) {
-    SystemImportData = await this.create({ providerId, chessComLinks: [] });
+    SystemImportData = await this.create({ providerId, links: [] });
   }
   return SystemImportData;
 };
