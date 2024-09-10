@@ -55,6 +55,4 @@ const gameSchema = new Schema<IGame>({
   result: { type: String },
 });
 
-const Game: Model<IGame> = model<IGame>('Game', gameSchema);
-
-export default Game;
+export const Game: Model<IGame> = model<IGame>('Game', gameSchema);

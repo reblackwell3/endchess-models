@@ -127,6 +127,4 @@ userSchema.statics.findOrCreate = async function (
   return user;
 };
 
-const User = model<IUser, IUserModel>('User', userSchema);
-
-export default User;
+export const User = model<IUser, IUserModel>('User', userSchema);

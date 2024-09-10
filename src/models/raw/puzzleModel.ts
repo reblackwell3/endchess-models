@@ -14,6 +14,4 @@ const puzzleSchema = new mongoose.Schema({
   OpeningTags: String,
 });
 
-const Puzzle = mongoose.model('Puzzle', puzzleSchema);
-
-export default Puzzle;
+export const Puzzle = mongoose.model('Puzzle', puzzleSchema);

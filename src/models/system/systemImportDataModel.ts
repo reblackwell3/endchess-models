@@ -48,9 +48,7 @@ schema.statics.findOrCreate = async function (providerId: string) {
   return SystemImportData;
 };
 
-const SystemImportData = model<ISystemImportData, ISystemImportDataModel>(
-  'SystemImportData',
-  schema,
-);
-
-export default SystemImportData;
+export const SystemImportData = model<
+  ISystemImportData,
+  ISystemImportDataModel
+>('SystemImportData', schema);

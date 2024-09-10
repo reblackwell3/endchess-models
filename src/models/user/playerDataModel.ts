@@ -35,6 +35,4 @@ const PlayerData: Model<IPlayerData> = mongoose.model<IPlayerData>(
   'PlayerData',
   playerDataSchema,
 );
-
-export default PlayerData;
-export { IPlayerData, IItemEvent };
+export { PlayerData, IPlayerData, IItemEvent };

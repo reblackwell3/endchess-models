@@ -10,6 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
+const associatedUsernameSchema = new mongoose_1.Schema({
+    site: { type: String, required: true },
+    username: { type: String, required: true },
+});
 const userSchema = new mongoose_1.Schema({
     provider: {
         type: String,
@@ -50,6 +54,10 @@ const userSchema = new mongoose_1.Schema({
     },
     familyName: {
         type: String,
+        required: false,
+    },
+    associatedUsernames: {
+        type: [associatedUsernameSchema],
         required: false,
     },
 }, { timestamps: true });
