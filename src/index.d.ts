@@ -1,11 +1,11 @@
 // src/index.d.ts
 
-export { default as Game } from './models/raw/gameModel';
-export { default as Puzzle } from './models/raw/puzzleModel';
+export * from './models/raw/gameModel';
+export * from './models/raw/puzzleModel';
 
-export { default as SystemGameData } from './models/system/systemGameDataModel';
-export { default as SystemImportData } from './models/system/systemImportDataModel';
+export * from './models/system/systemGameDataModel';
+export * from './models/system/systemImportDataModel';
 
-export { default as Rating } from './models/user/ratingModel';
-export { default as UserEvent } from './models/user/userEventModel';
-export { default as User } from './models/user/userModel';
+export * from './models/user/ratingModel';
+export * from './models/user/userEventModel';
+export * from './models/user/userModel';
