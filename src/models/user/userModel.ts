@@ -1,5 +1,10 @@
 import { Document, model, Schema, Types, Model } from 'mongoose';
 
+export interface IAssociatedUsername {
+  site: string;
+  username: string;
+}
+
 export interface IUserDocument extends Document {
   createdAt: Date;
   updatedAt: Date;
@@ -16,6 +21,7 @@ export interface IUser extends IUserDocument {
   picture: string;
   givenName: string;
   familyName: string;
+  associatedUsernames: IAssociatedUsername[];
 }
 
 export interface IUserModel extends Model<IUser> {
@@ -32,6 +38,11 @@ export interface IUserModel extends Model<IUser> {
     refreshToken: string,
   ) => Promise<IUser>;
 }
+
+const associatedUsernameSchema = new Schema<IAssociatedUsername>({
+  site: { type: String, required: true },
+  username: { type: String, required: true },
+});
 
 const userSchema = new Schema<IUser>(
   {
@@ -74,6 +85,10 @@ const userSchema = new Schema<IUser>(
     },
     familyName: {
       type: String,
+      required: false,
+    },
+    associatedUsernames: {
+      type: [associatedUsernameSchema],
       required: false,
     },
   },

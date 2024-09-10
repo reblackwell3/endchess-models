@@ -10,46 +10,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
+const LinkSchema = new mongoose_1.Schema({
+    site: { type: String, required: true },
+    url: { type: String, required: true },
+    isImported: { type: Boolean, required: true, default: false },
+});
 const schema = new mongoose_1.Schema({
     providerId: {
         type: String,
         required: true,
         unique: true,
     },
-    chessComLinks: [
-        {
-            url: {
-                type: String,
-                required: true,
-            },
-            isImported: {
-                type: Boolean,
-                required: true,
-            },
-        },
-    ],
-    lichessLinks: [
-        {
-            since: {
-                type: Number,
-                required: true,
-            },
-            until: {
-                type: Number,
-                required: true,
-            },
-            isImported: {
-                type: Boolean,
-                required: true,
-            },
-        },
-    ],
+    links: {
+        type: [LinkSchema],
+        required: true,
+    },
 }, { timestamps: true });
 schema.statics.findOrCreate = function (providerId) {
     return __awaiter(this, void 0, void 0, function* () {
         let SystemImportData = yield this.findOne({ providerId });
         if (!SystemImportData) {
-            SystemImportData = yield this.create({ providerId, chessComLinks: [] });
+            SystemImportData = yield this.create({ providerId, links: [] });
         }
         return SystemImportData;
     });
