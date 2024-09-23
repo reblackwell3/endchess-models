@@ -8,3 +8,4 @@ export * from './models/system/systemImportDataModel';
 
 export * from './models/user/playerDataModel';
 export * from './models/user/userModel';
+export * from './models/user/itemEventModel';
