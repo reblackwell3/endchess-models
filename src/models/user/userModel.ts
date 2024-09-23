@@ -87,10 +87,7 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: false,
     },
-    associatedUsernames: {
-      type: [associatedUsernameSchema],
-      required: false,
-    },
+    associatedUsernames: [associatedUsernameSchema],
   },
   { timestamps: true },
 );
