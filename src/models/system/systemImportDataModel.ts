@@ -32,10 +32,7 @@ const schema = new Schema<ISystemImportData>(
       required: true,
       unique: true,
     },
-    links: {
-      type: [LinkSchema],
-      required: true,
-    },
+    links: [LinkSchema],
   },
   { timestamps: true },
 );
