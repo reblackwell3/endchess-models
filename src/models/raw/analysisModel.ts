@@ -3,7 +3,9 @@ import { Document, model, Schema, Types } from 'mongoose';
 import { IGame } from './gameModel';
 
 export interface IAnalysis extends Document {
-  game: Types.ObjectId | IGame;
+  game: Types.ObjectId;
+  moveNumber: number;
+  lineNumber: number;
   isTopMove: boolean;
   diff: number;
   fen: string;
@@ -18,6 +20,8 @@ const analysisSchema: Schema = new Schema({
     ref: 'Game',
     required: true,
   },
+  moveNumber: { type: Number, required: true },
+  lineNumber: { type: Number, required: true },
   isTopMove: { type: Boolean, required: true },
   diff: { type: Number, required: true },
   fen: { type: String, required: true },
