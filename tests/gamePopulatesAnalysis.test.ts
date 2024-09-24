@@ -2,7 +2,7 @@
 import { connect, disconnect, Types } from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Analysis } from '../src/models/raw/analysisModel';
-import { Game, IGame } from '../src/models/raw/gameModel';
+import { Game } from '../src/models/raw/gameModel';
 import mockGameData from './__mocks__/game.mock.json';
 import mockAnalysisData from './__mocks__/analysis.mock.json';
 
@@ -42,15 +42,17 @@ describe('Analysis Model Test', () => {
       .populate('game')
       .exec();
 
+    console.log(JSON.stringify(populatedAnalysis, null, 2));
+
     // Assertions
     expect(populatedAnalysis).toBeDefined();
     expect(populatedAnalysis!.game).toBeDefined();
     expect((populatedAnalysis!.game as any).importFrom).toBe('chess.com');
-    expect(populatedAnalysis!.isTopMove).toBe(true);
-    expect(populatedAnalysis!.diff).toBe(5);
-    expect(populatedAnalysis!.fen).toBe(
+    expect(populatedAnalysis!.moves[0].lines[0].isTopMove).toBe(true);
+    expect(populatedAnalysis!.moves[0].lines[0].diff).toBe(5);
+    expect(populatedAnalysis!.moves[0].lines[0].fen).toBe(
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
     );
-    expect(populatedAnalysis!.move).toBe('e2e4');
+    expect(populatedAnalysis!.moves[0].move).toBe('e2e4');
   });
 });

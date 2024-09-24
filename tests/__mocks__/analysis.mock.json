@@ -1,9 +1,17 @@
 {
   "game": "507f1f77bcf86cd799439011",
-  "isTopMove": true,
-  "moveNumber": 1,
-  "lineNumber": 1,
-  "diff": 5,
-  "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-  "move": "e2e4"
+  "moves": [
+    {
+      "moveNumber": 1,
+      "move": "e2e4",
+      "lines": [
+        {
+          "lineNumber": 1,
+          "isTopMove": true,
+          "diff": 5,
+          "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+        }
+      ]
+    }
+  ]
 }
