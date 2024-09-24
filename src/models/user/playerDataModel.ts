@@ -7,7 +7,7 @@ interface IPlayerData extends Document {
   providerId: string;
   feature: string;
   rating: number;
-  itemEvents: Types.ObjectId[]; // Reference to ItemEvent documents
+  itemEvents: Types.ObjectId[] | IItemEvent[];
 }
 
 // Define the PlayerData schema

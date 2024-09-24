@@ -1,8 +1,9 @@
 // src/models/raw/analysisModel.ts
 import { Document, model, Schema, Types } from 'mongoose';
+import { IGame } from './gameModel';
 
 export interface IAnalysis extends Document {
-  game: Types.ObjectId;
+  game: Types.ObjectId | IGame;
   isTopMove: boolean;
   diff: number;
   fen: string;
