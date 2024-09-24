@@ -1,0 +1,27 @@
+{
+  "_id": "507f1f77bcf86cd799439011",
+  "importFrom": "chess.com",
+  "url": "https://www.example.com/game",
+  "pgn": "1. e4 e5 2. Nf3 Nc6",
+  "timeControl": "blitz",
+  "endTime": 1634567890,
+  "rated": true,
+  "tcn": "123456",
+  "uuid": "abcdefg123456",
+  "initialSetup": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+  "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+  "timeClass": "bullet",
+  "rules": "chess",
+  "eco": "C20",
+  "white": {
+    "rating": 1500,
+    "result": "1-0",
+    "username": "white_player"
+  },
+  "black": {
+    "rating": 1400,
+    "result": "0-1",
+    "username": "black_player"
+  },
+  "result": "1-0"
+}
