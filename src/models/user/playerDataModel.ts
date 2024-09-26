@@ -23,7 +23,7 @@ const playerDataSchema = new Schema<IPlayerData>({
   ],
 });
 
-playerDataSchema.statics.findOrCreate = async function (
+playerDataSchema.statics.findOrCreatePopulated = async function (
   providerId: string,
   feature: string,
 ): Promise<IPlayerData> {
