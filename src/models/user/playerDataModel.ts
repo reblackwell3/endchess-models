@@ -43,7 +43,7 @@ playerDataSchema.statics.findOrCreate = async function (
 };
 
 // Create the PlayerData model
-export const PlayerData: Model<IPlayerData> = mongoose.model<IPlayerData>(
+export const PlayerData = mongoose.model<IPlayerData, IPlayerDataModel>(
   'PlayerData',
   playerDataSchema,
 );
