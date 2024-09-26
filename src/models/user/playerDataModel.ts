@@ -30,6 +30,9 @@ playerDataSchema.statics.findOrCreate = async function (
   let playerData = await this.findOne({
     providerId,
     feature,
+  }).populate({
+    path: 'itemEvents',
+    match: { eventType: 'solved' },
   });
   if (!playerData) {
     playerData = await this.create({
@@ -37,7 +40,7 @@ playerDataSchema.statics.findOrCreate = async function (
       feature,
       rating: 1200,
       itemEvents: [],
-    });
+    }); // this is populated because [] will be []
   }
   return playerData;
 };
