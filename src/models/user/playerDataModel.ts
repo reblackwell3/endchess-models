@@ -3,13 +3,16 @@ import mongoose, { Schema, Document, Model, Types } from 'mongoose';
 import { IItemEvent } from './itemEventModel';
 
 // Define the PlayerData interface extending Document
-interface IPlayerData extends Document {
+export interface IPlayerData extends Document {
   providerId: string;
   feature: string;
   rating: number;
   itemEvents: Types.ObjectId[] | IItemEvent[];
 }
 
+export interface IPlayerDataModel extends Model<IPlayerData> {
+  findOrCreate: (providerId: string, feature: string) => Promise<IPlayerData>;
+}
 // Define the PlayerData schema
 const playerDataSchema = new Schema<IPlayerData>({
   providerId: { type: String, required: true },
@@ -20,10 +23,26 @@ const playerDataSchema = new Schema<IPlayerData>({
   ],
 });
 
+playerDataSchema.statics.findOrCreate = async function (
+  providerId: string,
+  feature: string,
+): Promise<IPlayerData> {
+  let playerData = await this.findOne({
+    providerId,
+    feature,
+  });
+  if (!playerData) {
+    playerData = await this.create({
+      providerId,
+      feature,
+      rating: 1200,
+    });
+  }
+  return playerData;
+};
+
 // Create the PlayerData model
-const PlayerData: Model<IPlayerData> = mongoose.model<IPlayerData>(
+export const PlayerData: Model<IPlayerData> = mongoose.model<IPlayerData>(
   'PlayerData',
   playerDataSchema,
 );
-
-export { PlayerData, IPlayerData };
