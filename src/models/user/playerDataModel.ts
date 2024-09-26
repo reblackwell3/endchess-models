@@ -36,6 +36,7 @@ playerDataSchema.statics.findOrCreate = async function (
       providerId,
       feature,
       rating: 1200,
+      itemEvents: [],
     });
   }
   return playerData;
