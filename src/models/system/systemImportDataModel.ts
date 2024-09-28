@@ -1,4 +1,5 @@
-import { Document, model, Schema, Model } from 'mongoose';
+import { Document, model, Schema, Model, Types } from 'mongoose';
+import { IGame } from '../raw/gameModel';
 
 export interface Link {
   site: string;
@@ -9,6 +10,7 @@ export interface Link {
 export interface ISystemImportDataDocument extends Document {
   providerId: string;
   links: Link[];
+  importedGames: Types.ObjectId[] | IGame[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +35,9 @@ const schema = new Schema<ISystemImportData>(
       unique: true,
     },
     links: [LinkSchema],
+    importedGames: [
+      { type: Schema.Types.ObjectId, ref: 'Game', required: true },
+    ],
   },
   { timestamps: true },
 );
