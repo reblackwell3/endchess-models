@@ -11,7 +11,10 @@ export interface IPlayerData extends Document {
 }
 
 export interface IPlayerDataModel extends Model<IPlayerData> {
-  findOrCreatePopulated: (providerId: string, feature: string) => Promise<IPlayerData>;
+  findOrCreatePopulated: (
+    providerId: string,
+    feature: string,
+  ) => Promise<IPlayerData>;
 }
 // Define the PlayerData schema
 const playerDataSchema = new Schema<IPlayerData>({

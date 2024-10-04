@@ -4,7 +4,7 @@ import mongoose, { Document, Schema, Model } from 'mongoose';
 export interface IPuzzle extends Document {
   puzzleId: string;
   fen: string;
-  moves: string;
+  moves: string[];
   rating: number;
   ratingDeviation: number;
   popularity: number;
@@ -15,10 +15,10 @@ export interface IPuzzle extends Document {
 }
 
 // Define the Puzzle schema
-const puzzleSchema = new Schema<IPuzzle>({
+const puzzleSchema = new Schema({
   puzzleId: { type: String, required: true },
   fen: { type: String, required: true },
-  moves: { type: String, required: true },
+  moves: { type: [String], required: true },
   rating: { type: Number, required: true },
   ratingDeviation: { type: Number, required: true },
   popularity: { type: Number, required: true },
