@@ -1,35 +1,38 @@
-import mongoose, { Document, Schema, Model } from 'mongoose';
+import mongoose, { Document, Schema, Model, Types } from 'mongoose';
 
-// Define the Puzzle interface extending Document
-export interface IPuzzle extends Document {
-  puzzleId: string;
-  fen: string;
-  moves: string[];
-  rating: number;
-  ratingDeviation: number;
-  popularity: number;
-  nbPlays: number;
-  themes: string;
-  gameUrl: string;
-  openingTags: string;
+/** Puzzle fields as stored in Mongo (Lichess CSV import). */
+export interface IPuzzleFields {
+  PuzzleId: string;
+  FEN: string;
+  Moves: string;
+  Rating: number;
+  RatingDeviation: number;
+  Popularity: number;
+  NbPlays: number;
+  Themes: string;
+  GameUrl: string;
+  OpeningTags: string;
 }
 
-// Define the Puzzle schema
-const puzzleSchema = new Schema({
-  puzzleId: { type: String, required: true },
-  fen: { type: String, required: true },
-  moves: { type: [String], required: true },
-  rating: { type: Number, required: true },
-  ratingDeviation: { type: Number, required: true },
-  popularity: { type: Number, required: true },
-  nbPlays: { type: Number, required: true },
-  themes: { type: String, required: true },
-  gameUrl: { type: String, required: true },
-  openingTags: { type: String, required: true },
+/** Lean puzzle document returned from queries. */
+export type IPuzzle = IPuzzleFields & { _id: Types.ObjectId };
+
+export interface IPuzzleDocument extends IPuzzleFields, Document {}
+
+const puzzleSchema = new Schema<IPuzzleDocument>({
+  PuzzleId: { type: String, required: true },
+  FEN: { type: String, required: true },
+  Moves: { type: String, required: true },
+  Rating: { type: Number, required: true },
+  RatingDeviation: { type: Number, required: true },
+  Popularity: { type: Number, required: true },
+  NbPlays: { type: Number, required: true },
+  Themes: { type: String, required: true },
+  GameUrl: { type: String, required: true },
+  OpeningTags: { type: String, required: true },
 });
 
-// Create the Puzzle model
-export const Puzzle: Model<IPuzzle> = mongoose.model<IPuzzle>(
+export const Puzzle: Model<IPuzzleDocument> = mongoose.model<IPuzzleDocument>(
   'Puzzle',
   puzzleSchema,
 );

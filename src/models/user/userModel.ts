@@ -10,6 +10,13 @@ export interface IUserDocument extends Document {
   updatedAt: Date;
 }
 
+export interface IUserPlayer {
+  elo: number;
+  puzzlesCompleted: Types.ObjectId[];
+  importedGames: Types.ObjectId[];
+  gamesCompleted: Types.ObjectId[];
+}
+
 export interface IUser extends IUserDocument {
   provider: string;
   providerId: string;
@@ -22,6 +29,7 @@ export interface IUser extends IUserDocument {
   givenName: string;
   familyName: string;
   associatedUsernames: IAssociatedUsername[];
+  player?: IUserPlayer;
 }
 
 export interface IUserModel extends Model<IUser> {
@@ -88,6 +96,12 @@ const userSchema = new Schema<IUser>(
       required: false,
     },
     associatedUsernames: [associatedUsernameSchema],
+    player: {
+      elo: { type: Number },
+      puzzlesCompleted: [{ type: Schema.Types.ObjectId, ref: 'Puzzle' }],
+      importedGames: [{ type: Schema.Types.ObjectId, ref: 'Game' }],
+      gamesCompleted: [{ type: Schema.Types.ObjectId, ref: 'Game' }],
+    },
   },
   { timestamps: true },
 );
