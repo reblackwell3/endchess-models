@@ -1,58 +1,125 @@
 import { Document, Model, model, Schema, Types } from 'mongoose';
 
-export interface IGame extends Document {
-  _id: Types.ObjectId;
-  importFrom: string; // 'chess.com' or 'lichess'
-  url: string;
-  pgn: string;
-  timeControl: string;
-  endTime: number;
-  rated: boolean;
-  tcn?: string;
-  uuid: string;
-  initialSetup: string;
-  fen: string;
-  timeClass: string;
-  rules: string;
-  eco?: string;
-  white: {
-    rating: number;
-    result: string;
-    username: string;
-  };
-  black: {
-    rating: number;
-    result: string;
-    username: string;
-  };
-  result: string;
+/** A single half-move, enriched by replaying the game through chess.js. */
+export interface IGameMove {
+  ply: number; // 1-based half-move index
+  san: string; // standard algebraic notation, e.g. "Nf3"
+  uci: string; // long algebraic / UCI, e.g. "g1f3"
+  fen: string; // FEN of the position AFTER this move
+  clk?: string; // clock remaining (from PGN %clk), e.g. "0:02:58"
+  eval?: number; // engine evaluation in pawns (from PGN %eval), if present
 }
 
-const gameSchema = new Schema<IGame>({
-  importFrom: { type: String, required: true },
-  url: { type: String, required: true },
-  pgn: { type: String, required: true },
-  timeControl: { type: String, required: true },
-  endTime: { type: Number, required: true },
-  rated: { type: Boolean, required: true },
-  tcn: { type: String },
-  uuid: { type: String, required: true },
-  initialSetup: { type: String },
-  fen: { type: String },
-  timeClass: { type: String, required: true },
-  rules: { type: String, required: true },
-  eco: { type: String },
-  white: {
-    rating: { type: Number, required: true },
-    result: { type: String, required: true },
-    username: { type: String, required: true },
+/** Per-player game info, normalized across platforms. */
+export interface IGamePlayer {
+  rating: number;
+  result: string; // 'win' | 'lose' | 'draw' | 'unknown'
+  username: string;
+  rating_diff?: number; // e.g. lichess WhiteRatingDiff (+8 / -8)
+  title?: string; // e.g. 'GM', 'IM' (when provided)
+}
+
+/**
+ * Unified, enriched representation of a single chess game, normalized across
+ * import sources (lichess, chess.com). Field names are snake_case to match the
+ * persisted collection.
+ */
+export interface IGame extends Document {
+  _id: Types.ObjectId;
+  import_from: string; // 'lichess' | 'chess.com'
+  url: string;
+  uuid: string; // stable per-source id (lichess game id / chess.com uuid)
+  pgn: string; // movetext (no header tags)
+
+  result: string; // '1-0' | '0-1' | '1/2-1/2' | '*'
+  eco?: string;
+  opening?: string;
+  termination?: string;
+
+  end_time: number; // unix seconds
+  played_at?: Date;
+  utc_date?: string;
+  utc_time?: string;
+
+  time_control: string; // e.g. '600+0'
+  time_class: string; // 'bullet' | 'blitz' | 'rapid' | 'classical' | 'correspondence'
+  rules: string; // e.g. 'Standard'
+  variant?: string;
+  rated: boolean;
+
+  fen: string; // final position FEN
+  initial_setup: string; // starting position FEN
+  tcn?: string; // chess.com move encoding (when available)
+  ply: number; // number of half-moves
+
+  white: IGamePlayer;
+  black: IGamePlayer;
+  moves: IGameMove[];
+}
+
+const playerSchema = new Schema<IGamePlayer>(
+  {
+    rating: { type: Number, required: true, default: 0 },
+    result: { type: String, required: true, default: 'unknown' },
+    username: { type: String, required: true, default: 'UNKNOWN' },
+    rating_diff: { type: Number },
+    title: { type: String },
   },
-  black: {
-    rating: { type: Number, required: true },
-    result: { type: String, required: true },
-    username: { type: String, required: true },
+  { _id: false },
+);
+
+const moveSchema = new Schema<IGameMove>(
+  {
+    ply: { type: Number, required: true },
+    san: { type: String, required: true },
+    uci: { type: String, required: true },
+    fen: { type: String, required: true },
+    clk: { type: String },
+    eval: { type: Number },
   },
-  result: { type: String },
-});
+  { _id: false },
+);
+
+const gameSchema = new Schema<IGame>(
+  {
+    import_from: { type: String, required: true },
+    url: { type: String, required: true },
+    uuid: { type: String, required: true, default: 'UNKNOWN' },
+    pgn: { type: String, required: true },
+
+    result: { type: String, default: '*' },
+    eco: { type: String },
+    opening: { type: String },
+    termination: { type: String },
+
+    end_time: { type: Number, required: true, default: 0 },
+    played_at: { type: Date },
+    utc_date: { type: String },
+    utc_time: { type: String },
+
+    time_control: { type: String, required: true, default: 'UNKNOWN' },
+    time_class: { type: String, required: true, default: 'UNKNOWN' },
+    rules: { type: String, required: true, default: 'Standard' },
+    variant: { type: String },
+    rated: { type: Boolean, required: true, default: false },
+
+    fen: { type: String, default: 'UNKNOWN' },
+    initial_setup: { type: String, default: 'UNKNOWN' },
+    tcn: { type: String },
+    ply: { type: Number, default: 0 },
+
+    white: { type: playerSchema, required: true },
+    black: { type: playerSchema, required: true },
+    moves: { type: [moveSchema], default: [] },
+  },
+  { timestamps: true },
+);
+
+// Dedup / resume key (matches the existing production index). Not unique:
+// legacy lichess rows may share uuid 'UNKNOWN'.
+gameSchema.index({ import_from: 1, uuid: 1 });
+gameSchema.index({ 'white.username': 1 });
+gameSchema.index({ 'black.username': 1 });
+gameSchema.index({ end_time: 1 });
 
 export const Game: Model<IGame> = model<IGame>('Game', gameSchema);

@@ -1,6 +1,6 @@
 {
   "name": "endchess-models",
-  "version": "1.10.0",
+  "version": "2.0.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,7 +23,9 @@
   },
   "homepage": "https://github.com/reblackwell3/endchess-models#readme",
   "dependencies": {
+    "chess.js": "^1.4.0",
     "mongoose": "^8.6.1",
+    "pgn-parser": "^2.2.1",
     "typescript": "^5.5.4"
   },
   "devDependencies": {

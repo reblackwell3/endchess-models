@@ -4,6 +4,8 @@ export * from './models/raw/analysisModel';
 export * from './models/raw/gameModel';
 export * from './models/raw/puzzleModel';
 
+export * from './lib/gameEnrichment';
+
 export * from './models/system/systemImportDataModel';
 
 export * from './models/user/playerDataModel';
