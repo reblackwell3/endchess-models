@@ -2,17 +2,15 @@
   "parser": "@typescript-eslint/parser",
   "extends": [
     "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended"
+    "plugin:@typescript-eslint/recommended"
   ],
-  "plugins": ["@typescript-eslint", "prettier", "jest"],
+  "plugins": ["@typescript-eslint", "jest"],
   "env": {
     "jest/globals": true,
     "node": true,
     "es2021": true
   },
   "rules": {
-    "prettier/prettier": "error",
     "curly": ["error", "multi-line"]
   }
 }
