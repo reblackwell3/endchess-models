@@ -27,6 +27,8 @@ export interface IGamePlayer {
 export interface IGame extends Document {
   _id: Types.ObjectId;
   import_from: string; // 'lichess' | 'chess.com'
+  /** Lichess dump month tag, e.g. "2024-01" from lichess_db_standard_rated_2024-01.pgn.zst */
+  import_batch?: string;
   url: string;
   uuid: string; // stable per-source id (lichess game id / chess.com uuid)
   pgn: string; // movetext (no header tags)
@@ -83,6 +85,7 @@ const moveSchema = new Schema<IGameMove>(
 const gameSchema = new Schema<IGame>(
   {
     import_from: { type: String, required: true },
+    import_batch: { type: String },
     url: { type: String, required: true },
     uuid: { type: String, required: true, default: 'UNKNOWN' },
     pgn: { type: String, required: true },
@@ -118,6 +121,7 @@ const gameSchema = new Schema<IGame>(
 // Dedup / resume key (matches the existing production index). Not unique:
 // legacy lichess rows may share uuid 'UNKNOWN'.
 gameSchema.index({ import_from: 1, uuid: 1 });
+gameSchema.index({ import_from: 1, import_batch: 1 });
 gameSchema.index({ 'white.username': 1 });
 gameSchema.index({ 'black.username': 1 });
 gameSchema.index({ end_time: 1 });

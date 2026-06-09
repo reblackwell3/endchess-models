@@ -5,6 +5,8 @@ export * from './models/raw/gameModel';
 export * from './models/raw/puzzleModel';
 
 export * from './lib/gameEnrichment';
+export * from './lib/positionUtils';
+export * from './lib/explorerIndex';
 
 export * from './models/system/systemImportDataModel';
 

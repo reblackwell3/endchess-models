@@ -8,6 +8,7 @@ export const START_FEN =
 /** A plain (non-Mongoose) enriched game object, ready to persist as a `Game`. */
 export interface EnrichedGame {
   import_from: string;
+  import_batch?: string;
   url: string;
   uuid: string;
   pgn: string;
