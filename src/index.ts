@@ -14,3 +14,7 @@ export * from './models/system/systemImportDataModel';
 export * from './models/user/playerDataModel';
 export * from './models/user/userModel';
 export * from './models/user/itemEventModel';
+
+export * from './models/course/courseTypes';
+export * from './models/course/courseModel';
+export * from './models/course/positionEvalModel';
