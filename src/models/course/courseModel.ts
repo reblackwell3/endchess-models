@@ -23,10 +23,10 @@ export interface ICourse extends Document {
   version: string;
   scanDepth: number;
   confirmDepth: number;
+  cpThreshold: number;
   filters: {
     minElo: number;
     maxElo: number;
-    cpThreshold: number;
     sources: string[];
     gameBudget: number;
   };
@@ -48,10 +48,10 @@ const courseSchema = new Schema<ICourse>(
     version: { type: String, required: true },
     scanDepth: { type: Number, required: true },
     confirmDepth: { type: Number, required: true },
+    cpThreshold: { type: Number, required: true },
     filters: {
       minElo: { type: Number, required: true },
       maxElo: { type: Number, required: true },
-      cpThreshold: { type: Number, required: true },
       sources: { type: [String], required: true },
       gameBudget: { type: Number, required: true },
     },
@@ -59,7 +59,7 @@ const courseSchema = new Schema<ICourse>(
   { collection: 'courses' },
 );
 
-courseSchema.index({ slug: 1, scanDepth: 1, confirmDepth: 1 }, { unique: true });
+courseSchema.index({ slug: 1, scanDepth: 1, confirmDepth: 1, cpThreshold: 1 }, { unique: true });
 
 export const Course: Model<ICourse> = model<ICourse>('Course', courseSchema);
 
