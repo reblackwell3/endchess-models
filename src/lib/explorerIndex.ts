@@ -1,5 +1,5 @@
 import type { EnrichedGame } from './gameEnrichment';
-import { START_FEN } from './gameEnrichment';
+import { applyUciToChess, chessAtInitialSetup } from './gameReplay';
 import { normalizeFen, positionKey } from './positionUtils';
 
 export type ExplorerOutcomeDelta = {
@@ -72,10 +72,11 @@ export function buildExplorerIndexFromGame(
 
   const positions: ExplorerPositionIndexDelta[] = [];
   const occurrences: ExplorerOccurrenceIndexDelta[] = [];
+  const chess = chessAtInitialSetup(game.initial_setup);
 
   for (let i = 0; i < game.moves.length; i++) {
     const move = game.moves[i]!;
-    const fenBefore = i === 0 ? game.initial_setup || START_FEN : game.moves[i - 1]!.fen;
+    const fenBefore = chess.fen();
     const key = positionKey(fenBefore);
 
     positions.push({
@@ -98,6 +99,8 @@ export function buildExplorerIndexFromGame(
       whiteElo,
       blackElo,
     });
+
+    applyUciToChess(chess, move.uci);
   }
 
   return { gameId, positions, occurrences };

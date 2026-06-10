@@ -5,7 +5,6 @@ export interface IGameMove {
   ply: number; // 1-based half-move index
   san: string; // standard algebraic notation, e.g. "Nf3"
   uci: string; // long algebraic / UCI, e.g. "g1f3"
-  fen: string; // FEN of the position AFTER this move
   clk?: string; // clock remaining (from PGN %clk), e.g. "0:02:58"
   eval?: number; // engine evaluation in pawns (from PGN %eval), if present
 }
@@ -75,7 +74,6 @@ const moveSchema = new Schema<IGameMove>(
     ply: { type: Number, required: true },
     san: { type: String, required: true },
     uci: { type: String, required: true },
-    fen: { type: String, required: true },
     clk: { type: String },
     eval: { type: Number },
   },
@@ -122,8 +120,8 @@ const gameSchema = new Schema<IGame>(
 // legacy lichess rows may share uuid 'UNKNOWN'.
 gameSchema.index({ import_from: 1, uuid: 1 });
 gameSchema.index({ import_from: 1, import_batch: 1 });
-gameSchema.index({ 'white.username': 1 });
-gameSchema.index({ 'black.username': 1 });
+gameSchema.index({ import_from: 1, 'white.username': 1 });
+gameSchema.index({ import_from: 1, 'black.username': 1 });
 gameSchema.index({ end_time: 1 });
 
 export const Game: Model<IGame> = model<IGame>('Game', gameSchema);

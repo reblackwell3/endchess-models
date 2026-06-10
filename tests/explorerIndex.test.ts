@@ -30,18 +30,8 @@ describe('buildExplorerIndexFromGame', () => {
     white: { username: 'White', rating: 2000, result: 'win' },
     black: { username: 'Black', rating: 1900, result: 'lose' },
     moves: [
-      {
-        ply: 1,
-        san: 'e4',
-        uci: 'e2e4',
-        fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
-      },
-      {
-        ply: 2,
-        san: 'e5',
-        uci: 'e7e5',
-        fen: 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2',
-      },
+      { ply: 1, san: 'e4', uci: 'e2e4' },
+      { ply: 2, san: 'e5', uci: 'e7e5' },
     ],
   };
 

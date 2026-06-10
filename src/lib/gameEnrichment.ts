@@ -215,7 +215,6 @@ export function enrichGameFromPgn(
       ply: i + 1,
       san: moveResult.san,
       uci: `${moveResult.from}${moveResult.to}${moveResult.promotion ?? ''}`,
-      fen: chess.fen(),
     };
     const clk = extractClk(text);
     if (clk) move.clk = clk;
