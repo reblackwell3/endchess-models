@@ -1,11 +1,15 @@
 // src/index.ts
 
+export { default as modelsMongoose, mongoose } from './mongoose';
+
 export * from './models/raw/analysisModel';
 export * from './models/raw/gameModel';
 export * from './models/raw/puzzleModel';
+export * from './models/raw/openingBranchFenModel';
 
 export * from './lib/gameEnrichment';
 export * from './lib/gameReplay';
+export * from './lib/lichessOpenings';
 export * from './lib/positionUtils';
 export * from './lib/explorerIndex';
 
