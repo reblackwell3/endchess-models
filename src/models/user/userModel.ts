@@ -17,19 +17,64 @@ export interface IUserPlayer {
   gamesCompleted: Types.ObjectId[];
 }
 
+export type SubscriptionStatus =
+  | 'none'
+  | 'active'
+  | 'past_due'
+  | 'canceled'
+  | 'trialing';
+
+export type SubscriptionPlanId = 'pro';
+
+export type SubscriptionBillingInterval = 'monthly' | 'yearly';
+
+export interface IUserSubscription {
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  status: SubscriptionStatus;
+  planId?: SubscriptionPlanId;
+  billingInterval?: SubscriptionBillingInterval;
+  currentPeriodEnd?: Date;
+}
+
+export interface IFreeUsageDaily {
+  dateKey: string;
+  puzzles: number;
+  srsReviews: number;
+}
+
+export interface IFreeUsage {
+  daily?: IFreeUsageDaily;
+  lastReplayNewGameAt?: Date;
+}
+
 export interface IUser extends IUserDocument {
   provider: string;
   providerId: string;
+  username?: string;
+  passwordHash?: string;
   accessToken: string;
   refreshToken: string;
-  email: string;
+  email?: string;
   emailVerified: boolean;
-  name: string;
-  picture: string;
-  givenName: string;
-  familyName: string;
+  name?: string;
+  picture?: string;
+  givenName?: string;
+  familyName?: string;
   associatedUsernames: IAssociatedUsername[];
   player?: IUserPlayer;
+  subscription?: IUserSubscription;
+  /** Full access until this date for new-user trial or promo extensions. */
+  trialEndsAt?: Date;
+  /** Manual override for comped/lifetime accounts. */
+  isLifetimeMember?: boolean;
+  /** Promo codes this user has already redeemed (normalized uppercase). */
+  redeemedPromoCodes?: string[];
+  freeUsage?: IFreeUsage;
+  emailVerificationTokenHash?: string;
+  emailVerificationTokenExpiresAt?: Date;
+  passwordResetTokenHash?: string;
+  passwordResetTokenExpiresAt?: Date;
 }
 
 export interface IUserModel extends Model<IUser> {
@@ -52,6 +97,47 @@ const associatedUsernameSchema = new Schema<IAssociatedUsername>({
   username: { type: String, required: true },
 });
 
+const freeUsageDailySchema = new Schema<IFreeUsageDaily>(
+  {
+    dateKey: { type: String, required: true },
+    puzzles: { type: Number, default: 0 },
+    srsReviews: { type: Number, default: 0 },
+  },
+  { _id: false },
+);
+
+const freeUsageSchema = new Schema<IFreeUsage>(
+  {
+    daily: { type: freeUsageDailySchema, required: false },
+    lastReplayNewGameAt: { type: Date, required: false },
+  },
+  { _id: false },
+);
+
+const subscriptionSchema = new Schema<IUserSubscription>(
+  {
+    stripeCustomerId: { type: String, required: false },
+    stripeSubscriptionId: { type: String, required: false },
+    status: {
+      type: String,
+      enum: ['none', 'active', 'past_due', 'canceled', 'trialing'],
+      default: 'none',
+    },
+    planId: {
+      type: String,
+      enum: ['pro'],
+      required: false,
+    },
+    billingInterval: {
+      type: String,
+      enum: ['monthly', 'yearly'],
+      required: false,
+    },
+    currentPeriodEnd: { type: Date, required: false },
+  },
+  { _id: false },
+);
+
 const userSchema = new Schema<IUser>(
   {
     provider: {
@@ -63,6 +149,19 @@ const userSchema = new Schema<IUser>(
       required: true,
       unique: true,
     },
+    username: {
+      type: String,
+      required: false,
+      unique: true,
+      sparse: true,
+      trim: true,
+      lowercase: true,
+    },
+    passwordHash: {
+      type: String,
+      required: false,
+      select: false,
+    },
     accessToken: {
       type: String,
       required: true,
@@ -73,15 +172,16 @@ const userSchema = new Schema<IUser>(
     },
     email: {
       type: String,
-      required: true,
+      required: false,
     },
     emailVerified: {
       type: Boolean,
       required: true,
+      default: false,
     },
     name: {
       type: String,
-      required: true,
+      required: false,
     },
     picture: {
       type: String,
@@ -96,6 +196,22 @@ const userSchema = new Schema<IUser>(
       required: false,
     },
     associatedUsernames: [associatedUsernameSchema],
+    subscription: {
+      type: subscriptionSchema,
+      required: false,
+      default: () => ({ status: 'none' }),
+    },
+    trialEndsAt: { type: Date, required: false },
+    isLifetimeMember: { type: Boolean, required: false, default: false },
+    redeemedPromoCodes: [{ type: String }],
+    emailVerificationTokenHash: { type: String, required: false, select: false },
+    emailVerificationTokenExpiresAt: { type: Date, required: false, select: false },
+    passwordResetTokenHash: { type: String, required: false, select: false },
+    passwordResetTokenExpiresAt: { type: Date, required: false, select: false },
+    freeUsage: {
+      type: freeUsageSchema,
+      required: false,
+    },
     player: {
       elo: { type: Number },
       puzzlesCompleted: [{ type: Schema.Types.ObjectId, ref: 'Puzzle' }],
@@ -118,23 +234,70 @@ userSchema.statics.findOrCreate = async function (
   accessToken: string,
   refreshToken: string,
 ) {
+  const email = profile.emails?.[0]?.value?.trim() || undefined;
+  const givenName = profile.name?.givenName ?? '';
+  const familyName = profile.name?.familyName ?? '';
+  const displayName =
+    profile.displayName?.trim() ||
+    [givenName, familyName].filter(Boolean).join(' ') ||
+    undefined;
+  const picture = profile.photos?.[0]?.value || undefined;
+
   let user = await this.findOne({
     providerId: profile.id,
   });
+
   if (!user) {
+    const trialEndsAt = new Date();
+    trialEndsAt.setUTCDate(trialEndsAt.getUTCDate() + 30);
     user = await this.create({
       provider: profile.provider,
       providerId: profile.id,
       accessToken,
       refreshToken,
-      email: profile.emails[0].value,
-      emailVerified: true, // Assuming email is verified
-      name: profile.displayName,
-      givenName: profile.name.givenName,
-      familyName: profile.name.familyName,
-      picture: profile.photos[0].value,
+      ...(email ? { email } : {}),
+      emailVerified: true,
+      ...(displayName ? { name: displayName } : {}),
+      givenName,
+      familyName,
+      ...(picture ? { picture } : {}),
+      trialEndsAt,
     });
+    return user;
   }
+
+  const patch: Record<string, unknown> = { accessToken, refreshToken };
+  if (!user.email && email) {
+    patch.email = email;
+  }
+  if (!user.name && displayName) {
+    patch.name = displayName;
+  }
+  if (!user.picture && picture) {
+    patch.picture = picture;
+  }
+  if (!user.givenName && givenName) {
+    patch.givenName = givenName;
+  }
+  if (!user.familyName && familyName) {
+    patch.familyName = familyName;
+  }
+  if (user.provider !== 'local' && user.emailVerified !== true) {
+    patch.emailVerified = true;
+  }
+
+  if (Object.keys(patch).length > 2) {
+    await this.updateOne({ _id: user._id }, { $set: patch });
+    user = await this.findById(user._id);
+  } else {
+    user.accessToken = accessToken;
+    user.refreshToken = refreshToken;
+    await this.updateOne(
+      { _id: user._id },
+      { $set: { accessToken, refreshToken } },
+    );
+  }
+
   return user;
 };
 

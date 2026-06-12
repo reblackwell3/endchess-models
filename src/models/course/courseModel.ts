@@ -1,6 +1,7 @@
 import { Document, Model, model, Schema, Types } from 'mongoose';
 import type {
   CoursePhase,
+  CoursePreviewThumbnail,
   GamePool,
   LessonType,
   ParentOpening,
@@ -30,6 +31,7 @@ export interface ICourse extends Document {
     sources: string[];
     gameBudget: number;
   };
+  previewThumbnails?: CoursePreviewThumbnail[];
 }
 
 const courseSchema = new Schema<ICourse>(
@@ -54,6 +56,15 @@ const courseSchema = new Schema<ICourse>(
       maxElo: { type: Number, required: true },
       sources: { type: [String], required: true },
       gameBudget: { type: Number, required: true },
+    },
+    previewThumbnails: {
+      type: [
+        {
+          pgn: { type: String, required: true },
+          startFen: { type: String },
+        },
+      ],
+      default: undefined,
     },
   },
   { collection: 'courses' },
