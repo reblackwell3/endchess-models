@@ -178,6 +178,7 @@ export interface ICourseProgress extends Document {
   courseId: Types.ObjectId;
   completedLessonIds: Types.ObjectId[];
   completedSectionIds: Types.ObjectId[];
+  ignoredLessonIds: Types.ObjectId[];
   lastLessonId?: Types.ObjectId;
   updatedAt: Date;
 }
@@ -188,6 +189,7 @@ const courseProgressSchema = new Schema<ICourseProgress>(
     courseId: { type: Schema.Types.ObjectId, required: true, index: true },
     completedLessonIds: { type: [Schema.Types.ObjectId], required: true, default: [] },
     completedSectionIds: { type: [Schema.Types.ObjectId], required: true, default: [] },
+    ignoredLessonIds: { type: [Schema.Types.ObjectId], required: true, default: [] },
     lastLessonId: { type: Schema.Types.ObjectId },
     updatedAt: { type: Date, required: true, default: Date.now },
   },
