@@ -121,6 +121,7 @@ export interface ILesson extends Document {
     eco?: string;
     opening?: string;
     result: string;
+    date?: string;
   };
   window: { fromPly: number; toPly: number };
   materialSignature?: string;
@@ -152,6 +153,7 @@ const lessonSchema = new Schema<ILesson>(
       eco: { type: String },
       opening: { type: String },
       result: { type: String, required: true },
+      date: { type: String },
     },
     window: {
       fromPly: { type: Number, required: true },

@@ -48,6 +48,11 @@ export interface IFreeUsage {
   lastReplayNewGameAt?: Date;
 }
 
+export interface IEmailSendUsage {
+  dateKey: string;
+  count: number;
+}
+
 export interface IUser extends IUserDocument {
   provider: string;
   providerId: string;
@@ -71,6 +76,7 @@ export interface IUser extends IUserDocument {
   /** Promo codes this user has already redeemed (normalized uppercase). */
   redeemedPromoCodes?: string[];
   freeUsage?: IFreeUsage;
+  emailSendUsage?: IEmailSendUsage;
   emailVerificationTokenHash?: string;
   emailVerificationTokenExpiresAt?: Date;
   passwordResetTokenHash?: string;
@@ -110,6 +116,14 @@ const freeUsageSchema = new Schema<IFreeUsage>(
   {
     daily: { type: freeUsageDailySchema, required: false },
     lastReplayNewGameAt: { type: Date, required: false },
+  },
+  { _id: false },
+);
+
+const emailSendUsageSchema = new Schema<IEmailSendUsage>(
+  {
+    dateKey: { type: String, required: true },
+    count: { type: Number, default: 0 },
   },
   { _id: false },
 );
@@ -210,6 +224,10 @@ const userSchema = new Schema<IUser>(
     passwordResetTokenExpiresAt: { type: Date, required: false, select: false },
     freeUsage: {
       type: freeUsageSchema,
+      required: false,
+    },
+    emailSendUsage: {
+      type: emailSendUsageSchema,
       required: false,
     },
     player: {
