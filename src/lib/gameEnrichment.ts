@@ -223,7 +223,7 @@ export function enrichGameFromPgn(
     moves.push(move);
   });
 
-  const url = overrides.url ?? clean(h['Site']) ?? '';
+  const url = overrides.url ?? clean(h['Site']) ?? clean(h['LichessURL']) ?? '';
   const timeControl = overrides.time_control ?? clean(h['TimeControl']) ?? 'UNKNOWN';
   const endTime =
     overrides.end_time ?? unixSeconds(h['UTCDate'], h['UTCTime']) ?? 0;
