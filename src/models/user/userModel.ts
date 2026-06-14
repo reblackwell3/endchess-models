@@ -267,7 +267,7 @@ userSchema.statics.findOrCreate = async function (
 
   if (!user) {
     const trialEndsAt = new Date();
-    trialEndsAt.setUTCDate(trialEndsAt.getUTCDate() + 30);
+    trialEndsAt.setUTCDate(trialEndsAt.getUTCDate() + 90);
     user = await this.create({
       provider: profile.provider,
       providerId: profile.id,
