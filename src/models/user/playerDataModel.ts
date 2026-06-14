@@ -2,11 +2,13 @@
 import mongoose, { Schema, Document, Model, Types } from 'mongoose';
 import { IItemEvent } from './itemEventModel';
 
-// Define the PlayerData interface extending Document
+export const DEFAULT_PUZZLE_ELO = 1200;
+
 export interface IPlayerData extends Document {
   providerId: string;
   feature: string;
-  rating: number;
+  /** User puzzle rating; only set when feature is "puzzles". */
+  puzzle_elo?: number;
   itemEvents: Types.ObjectId[] | IItemEvent[];
 }
 
@@ -16,11 +18,11 @@ export interface IPlayerDataModel extends Model<IPlayerData> {
     feature: string,
   ) => Promise<IPlayerData>;
 }
-// Define the PlayerData schema
+
 const playerDataSchema = new Schema<IPlayerData>({
   providerId: { type: String, required: true },
   feature: { type: String, required: true },
-  rating: { type: Number, required: true },
+  puzzle_elo: { type: Number, required: false },
   itemEvents: [
     { type: Schema.Types.ObjectId, ref: 'ItemEvent', required: true },
   ],
@@ -41,14 +43,13 @@ playerDataSchema.statics.findOrCreatePopulated = async function (
     playerData = await this.create({
       providerId,
       feature,
-      rating: 1200,
+      ...(feature === 'puzzles' ? { puzzle_elo: DEFAULT_PUZZLE_ELO } : {}),
       itemEvents: [],
-    }); // this is populated because [] will be []
+    });
   }
   return playerData;
 };
 
-// Create the PlayerData model
 export const PlayerData = mongoose.model<IPlayerData, IPlayerDataModel>(
   'PlayerData',
   playerDataSchema,

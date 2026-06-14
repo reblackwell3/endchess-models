@@ -1,4 +1,4 @@
-import { Document, model, Schema, Types, Model } from 'mongoose';
+import { Document, model, Schema, Model } from 'mongoose';
 
 export interface IAssociatedUsername {
   site: string;
@@ -8,13 +8,6 @@ export interface IAssociatedUsername {
 export interface IUserDocument extends Document {
   createdAt: Date;
   updatedAt: Date;
-}
-
-export interface IUserPlayer {
-  elo: number;
-  puzzlesCompleted: Types.ObjectId[];
-  importedGames: Types.ObjectId[];
-  gamesCompleted: Types.ObjectId[];
 }
 
 export type SubscriptionStatus =
@@ -67,7 +60,6 @@ export interface IUser extends IUserDocument {
   givenName?: string;
   familyName?: string;
   associatedUsernames: IAssociatedUsername[];
-  player?: IUserPlayer;
   subscription?: IUserSubscription;
   /** Full access until this date for new-user trial or promo extensions. */
   trialEndsAt?: Date;
@@ -229,12 +221,6 @@ const userSchema = new Schema<IUser>(
     emailSendUsage: {
       type: emailSendUsageSchema,
       required: false,
-    },
-    player: {
-      elo: { type: Number },
-      puzzlesCompleted: [{ type: Schema.Types.ObjectId, ref: 'Puzzle' }],
-      importedGames: [{ type: Schema.Types.ObjectId, ref: 'Game' }],
-      gamesCompleted: [{ type: Schema.Types.ObjectId, ref: 'Game' }],
     },
   },
   { timestamps: true },
