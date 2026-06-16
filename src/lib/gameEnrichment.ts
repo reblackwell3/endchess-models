@@ -122,6 +122,11 @@ function unixSeconds(
   return Number.isNaN(ms) ? undefined : Math.floor(ms / 1000);
 }
 
+/** Prefer Lichess-style UTCDate; fall back to standard PGN Date for OTB imports. */
+function pgnDateHeader(h: Record<string, string>): string | undefined {
+  return clean(h['UTCDate']) ?? clean(h['Date']);
+}
+
 function commentText(comments: PgnMove['comments']): string {
   if (!comments) return '';
   return comments
@@ -225,8 +230,10 @@ export function enrichGameFromPgn(
 
   const url = overrides.url ?? clean(h['Site']) ?? clean(h['LichessURL']) ?? '';
   const timeControl = overrides.time_control ?? clean(h['TimeControl']) ?? 'UNKNOWN';
+  const pgnDate = pgnDateHeader(h);
+  const pgnTime = clean(h['UTCTime']);
   const endTime =
-    overrides.end_time ?? unixSeconds(h['UTCDate'], h['UTCTime']) ?? 0;
+    overrides.end_time ?? unixSeconds(pgnDate, pgnTime) ?? 0;
   const rated =
     overrides.rated ?? /rated/i.test(clean(h['Event']) ?? '') ? true : false;
 
@@ -277,10 +284,8 @@ export function enrichGameFromPgn(
   const variant = clean(h['Variant']);
   if (variant) enriched.variant = variant;
   if (overrides.tcn) enriched.tcn = overrides.tcn;
-  const utcDate = clean(h['UTCDate']);
-  if (utcDate) enriched.utc_date = utcDate;
-  const utcTime = clean(h['UTCTime']);
-  if (utcTime) enriched.utc_time = utcTime;
+  if (pgnDate) enriched.utc_date = pgnDate;
+  if (pgnTime) enriched.utc_time = pgnTime;
   if (endTime) enriched.played_at = new Date(endTime * 1000);
 
   return enriched;
