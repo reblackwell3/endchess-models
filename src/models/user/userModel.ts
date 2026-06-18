@@ -171,6 +171,7 @@ const userSchema = new Schema<IUser>(
     accessToken: {
       type: String,
       required: true,
+      unique: true,
     },
     refreshToken: {
       type: String,

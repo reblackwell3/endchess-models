@@ -11,6 +11,7 @@ export * from './lib/gameEnrichment';
 export * from './lib/gameReplay';
 export * from './lib/lichessOpenings';
 export * from './lib/positionUtils';
+export * from './lib/lessonTrainPosition';
 export * from './lib/explorerIndex';
 
 export * from './models/system/systemImportDataModel';

@@ -1,6 +1,18 @@
 export type TrainSide = 'w' | 'b';
 export type CoursePhase = 'opening' | 'middlegame' | 'endgame';
 
+/** One trainable half-move in a lesson line (precomputed at course publish). */
+export type LessonTrainPosition = {
+  /** 1-based half move in the lesson line (same convention as replay plies). */
+  halfMove: number;
+  fen: string;
+  expectedUci: string;
+  expectedSan: string;
+  sideToMove: TrainSide;
+  setupFen?: string;
+  setupUci?: string;
+};
+
 /** Half-moves played on each course list thumbnail preview. */
 export const COURSE_PREVIEW_LINE_PLIES = 8;
 
