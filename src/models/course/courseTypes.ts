@@ -22,6 +22,9 @@ export type CoursePreviewThumbnail = {
   pgn: string;
   startFen?: string;
 };
+/** How explorer opening repertoire lines were selected at build time. */
+export type CourseAlgorithm = 'score' | 'popularity';
+
 export type GamePool = 'repertoire' | 'supplemental' | 'combined';
 export type ParentOpening = 'e4' | 'caro-kann' | 'grunfeld';
 export type SectionKind = 'line-branch' | 'structure' | 'material';

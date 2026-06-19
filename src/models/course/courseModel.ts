@@ -1,5 +1,6 @@
 import { Document, Model, model, Schema, Types } from 'mongoose';
 import type {
+  CourseAlgorithm,
   CoursePhase,
   CoursePreviewThumbnail,
   GamePool,
@@ -27,6 +28,8 @@ export interface ICourse extends Document {
   scanDepth: number;
   confirmDepth: number;
   cpThreshold: number;
+  /** Opening repertoire line selection strategy (omitted on engine-built courses). */
+  algorithm?: CourseAlgorithm;
   filters: {
     minElo: number;
     maxElo: number;
@@ -54,6 +57,7 @@ const courseSchema = new Schema<ICourse>(
     scanDepth: { type: Number, required: true },
     confirmDepth: { type: Number, required: true },
     cpThreshold: { type: Number, required: true },
+    algorithm: { type: String },
     filters: {
       minElo: { type: Number, required: true },
       maxElo: { type: Number, required: true },
@@ -73,7 +77,8 @@ const courseSchema = new Schema<ICourse>(
   { collection: 'courses' },
 );
 
-courseSchema.index({ slug: 1, scanDepth: 1, confirmDepth: 1, cpThreshold: 1 }, { unique: true });
+/** One row per slug+semver so prior versions stay in MongoDB for rollback. */
+courseSchema.index({ slug: 1, version: 1 }, { unique: true });
 
 export const Course: Model<ICourse> = model<ICourse>('Course', courseSchema);
 
