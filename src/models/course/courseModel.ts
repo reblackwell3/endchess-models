@@ -23,6 +23,7 @@ export interface ICourse extends Document {
   avgElo: number;
   generatedAt: Date;
   version: string;
+  published: boolean;
   scanDepth: number;
   confirmDepth: number;
   cpThreshold: number;
@@ -49,6 +50,7 @@ const courseSchema = new Schema<ICourse>(
     avgElo: { type: Number, required: true, default: 0 },
     generatedAt: { type: Date, required: true, default: Date.now },
     version: { type: String, required: true },
+    published: { type: Boolean, required: true, default: false },
     scanDepth: { type: Number, required: true },
     confirmDepth: { type: Number, required: true },
     cpThreshold: { type: Number, required: true },
