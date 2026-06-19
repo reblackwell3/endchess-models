@@ -2,7 +2,7 @@
 import mongoose, { Schema, Document, Model, Types } from 'mongoose';
 import { IItemEvent } from './itemEventModel';
 
-export const DEFAULT_PUZZLE_ELO = 1200;
+export const DEFAULT_PUZZLE_ELO = 1500;
 
 export interface IPlayerData extends Document {
   providerId: string;
