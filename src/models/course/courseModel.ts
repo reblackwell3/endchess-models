@@ -202,6 +202,8 @@ export const Lesson: Model<ILesson> = model<ILesson>('Lesson', lessonSchema);
 export interface ICourseProgress extends Document {
   providerId: string;
   courseId: Types.ObjectId;
+  /** Stable course slug; kept when course versions are replaced or deleted. */
+  courseSlug?: string;
   completedLessonIds: Types.ObjectId[];
   completedSectionIds: Types.ObjectId[];
   ignoredLessonIds: Types.ObjectId[];
@@ -213,6 +215,7 @@ const courseProgressSchema = new Schema<ICourseProgress>(
   {
     providerId: { type: String, required: true, index: true },
     courseId: { type: Schema.Types.ObjectId, required: true, index: true },
+    courseSlug: { type: String, index: true },
     completedLessonIds: { type: [Schema.Types.ObjectId], required: true, default: [] },
     completedSectionIds: { type: [Schema.Types.ObjectId], required: true, default: [] },
     ignoredLessonIds: { type: [Schema.Types.ObjectId], required: true, default: [] },
