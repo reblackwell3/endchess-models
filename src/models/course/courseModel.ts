@@ -109,6 +109,10 @@ export interface ILesson extends Document {
   title: string;
   type: LessonType;
   startFen: string;
+  /** Position before {@link setupUci} when the lesson line starts mid-game. */
+  setupFen?: string;
+  /** Move into {@link startFen} when the lesson line starts mid-game. */
+  setupUci?: string;
   movesUci: string[];
   movesSan: string[];
   trainSide: TrainSide;
@@ -141,6 +145,8 @@ const lessonSchema = new Schema<ILesson>(
     title: { type: String, required: true },
     type: { type: String, required: true, default: 'line' },
     startFen: { type: String, required: true },
+    setupFen: { type: String },
+    setupUci: { type: String },
     movesUci: { type: [String], required: true },
     movesSan: { type: [String], required: true },
     trainSide: { type: String, required: true },
