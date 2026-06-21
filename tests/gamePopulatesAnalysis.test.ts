@@ -47,7 +47,7 @@ describe('Analysis Model Test', () => {
     // Assertions
     expect(populatedAnalysis).toBeDefined();
     expect(populatedAnalysis!.game).toBeDefined();
-    expect((populatedAnalysis!.game as any).importFrom).toBe('chess.com');
+    expect((populatedAnalysis!.game as any).import_from).toBe('chess.com');
     expect(populatedAnalysis!.moves[0].lines[0].isTopMove).toBe(true);
     expect(populatedAnalysis!.moves[0].lines[0].diff).toBe(5);
     expect(populatedAnalysis!.moves[0].lines[0].fen).toBe(

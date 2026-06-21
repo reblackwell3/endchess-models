@@ -69,6 +69,8 @@ export interface IUser extends IUserDocument {
   redeemedPromoCodes?: string[];
   freeUsage?: IFreeUsage;
   emailSendUsage?: IEmailSendUsage;
+  /** Updated when the user signs in (not on passive session refresh). */
+  lastLoginAt?: Date;
   emailVerificationTokenHash?: string;
   emailVerificationTokenExpiresAt?: Date;
   passwordResetTokenHash?: string;
@@ -171,6 +173,7 @@ const userSchema = new Schema<IUser>(
     accessToken: {
       type: String,
       required: true,
+      unique: true,
     },
     refreshToken: {
       type: String,
@@ -222,6 +225,7 @@ const userSchema = new Schema<IUser>(
       type: emailSendUsageSchema,
       required: false,
     },
+    lastLoginAt: { type: Date, required: false },
   },
   { timestamps: true },
 );

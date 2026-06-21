@@ -1,5 +1,6 @@
 import { Document, Model, model, Schema, Types } from 'mongoose';
 import type {
+  CourseAlgorithm,
   CoursePhase,
   CoursePreviewThumbnail,
   GamePool,
@@ -23,9 +24,12 @@ export interface ICourse extends Document {
   avgElo: number;
   generatedAt: Date;
   version: string;
+  published: boolean;
   scanDepth: number;
   confirmDepth: number;
   cpThreshold: number;
+  /** Opening repertoire line selection strategy (omitted on engine-built courses). */
+  algorithm?: CourseAlgorithm;
   filters: {
     minElo: number;
     maxElo: number;
@@ -49,9 +53,11 @@ const courseSchema = new Schema<ICourse>(
     avgElo: { type: Number, required: true, default: 0 },
     generatedAt: { type: Date, required: true, default: Date.now },
     version: { type: String, required: true },
+    published: { type: Boolean, required: true, default: false },
     scanDepth: { type: Number, required: true },
     confirmDepth: { type: Number, required: true },
     cpThreshold: { type: Number, required: true },
+    algorithm: { type: String },
     filters: {
       minElo: { type: Number, required: true },
       maxElo: { type: Number, required: true },
@@ -71,7 +77,8 @@ const courseSchema = new Schema<ICourse>(
   { collection: 'courses' },
 );
 
-courseSchema.index({ slug: 1, scanDepth: 1, confirmDepth: 1, cpThreshold: 1 }, { unique: true });
+/** One row per slug+semver so prior versions stay in MongoDB for rollback. */
+courseSchema.index({ slug: 1, version: 1 }, { unique: true });
 
 export const Course: Model<ICourse> = model<ICourse>('Course', courseSchema);
 
@@ -201,6 +208,8 @@ export const Lesson: Model<ILesson> = model<ILesson>('Lesson', lessonSchema);
 export interface ICourseProgress extends Document {
   providerId: string;
   courseId: Types.ObjectId;
+  /** Stable course slug; kept when course versions are replaced or deleted. */
+  courseSlug?: string;
   completedLessonIds: Types.ObjectId[];
   completedSectionIds: Types.ObjectId[];
   ignoredLessonIds: Types.ObjectId[];
@@ -212,6 +221,7 @@ const courseProgressSchema = new Schema<ICourseProgress>(
   {
     providerId: { type: String, required: true, index: true },
     courseId: { type: Schema.Types.ObjectId, required: true, index: true },
+    courseSlug: { type: String, index: true },
     completedLessonIds: { type: [Schema.Types.ObjectId], required: true, default: [] },
     completedSectionIds: { type: [Schema.Types.ObjectId], required: true, default: [] },
     ignoredLessonIds: { type: [Schema.Types.ObjectId], required: true, default: [] },

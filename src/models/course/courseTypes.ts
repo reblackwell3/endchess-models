@@ -2,7 +2,7 @@ export type TrainSide = 'w' | 'b';
 
 /** Precomputed train position embedded on a lesson at publish time. */
 export type LessonTrainPosition = {
-  /** 1-based half move in the lesson line. */
+  /** 1-based half move in the lesson line (same convention as replay plies). */
   halfMove: number;
   fen: string;
   expectedUci: string;
@@ -25,6 +25,9 @@ export type CoursePreviewThumbnail = {
   pgn: string;
   startFen?: string;
 };
+/** How explorer opening repertoire lines were selected at build time. */
+export type CourseAlgorithm = 'score' | 'popularity';
+
 export type GamePool = 'repertoire' | 'supplemental' | 'combined';
 export type ParentOpening = 'e4' | 'caro-kann' | 'grunfeld';
 export type SectionKind = 'line-branch' | 'structure' | 'material';
