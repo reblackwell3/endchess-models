@@ -3,6 +3,7 @@ import type {
   CoursePhase,
   CoursePreviewThumbnail,
   GamePool,
+  LessonTrainPosition,
   LessonType,
   ParentOpening,
   SectionKind,
@@ -116,6 +117,8 @@ export interface ILesson extends Document {
   movesUci: string[];
   movesSan: string[];
   trainSide: TrainSide;
+  /** Precomputed at publish; avoids recomputing train positions at read time. */
+  trainPositions?: LessonTrainPosition[];
   sourceGameId: string;
   sourceMeta: {
     white: string;
@@ -150,6 +153,20 @@ const lessonSchema = new Schema<ILesson>(
     movesUci: { type: [String], required: true },
     movesSan: { type: [String], required: true },
     trainSide: { type: String, required: true },
+    trainPositions: {
+      type: [
+        {
+          halfMove: { type: Number, required: true },
+          fen: { type: String, required: true },
+          expectedUci: { type: String, required: true },
+          expectedSan: { type: String, required: true },
+          sideToMove: { type: String, required: true },
+          setupFen: { type: String },
+          setupUci: { type: String },
+        },
+      ],
+      default: undefined,
+    },
     sourceGameId: { type: String, required: true },
     sourceMeta: {
       white: { type: String, required: true },

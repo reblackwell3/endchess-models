@@ -1,4 +1,19 @@
 export type TrainSide = 'w' | 'b';
+
+/** Precomputed train position embedded on a lesson at publish time. */
+export type LessonTrainPosition = {
+  /** 1-based half move in the lesson line. */
+  halfMove: number;
+  fen: string;
+  expectedUci: string;
+  expectedSan: string;
+  sideToMove: TrainSide;
+  /** Position before the opponent setup move leading into this train position. */
+  setupFen?: string;
+  /** Opponent move leading into this train position. */
+  setupUci?: string;
+};
+
 export type CoursePhase = 'opening' | 'middlegame' | 'endgame';
 
 /** Half-moves played on each course list thumbnail preview. */
