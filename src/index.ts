@@ -13,8 +13,9 @@ export * from './lib/gameReplay';
 export * from './lib/lichessOpenings';
 export * from './lib/positionUtils';
 export * from './lib/lessonTrainPosition';
+export * from './lib/lessonLineStart';
+export * from './lib/coursePreview';
 export * from './lib/explorerIndex';
-export * from './lib/lessonTrainPosition';
 
 export * from './models/system/systemImportDataModel';
 export * from './models/system/promoCodeModel';

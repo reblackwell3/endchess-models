@@ -24,6 +24,8 @@ export type CoursePreviewThumbnail = {
   /** Up to {@link COURSE_PREVIEW_LINE_PLIES} SAN half-moves from `startFen`. */
   pgn: string;
   startFen?: string;
+  /** Move leading into {@link startFen} for the last-move indicator on ply 0. */
+  setupUci?: string;
 };
 /** How explorer opening repertoire lines were selected at build time. */
 export type CourseAlgorithm = 'score' | 'popularity';
