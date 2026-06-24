@@ -1,0 +1,21 @@
+---
+description: Do not manually bump package.json version — CI publish workflow handles it
+alwaysApply: true
+---
+
+# No manual version bumps (endchess-models)
+
+Do **not** change `version` in `package.json` when adding features or fixes on `dev`.
+
+## How publishing works
+
+1. Merge `dev` → `main`.
+2. **Publish** workflow runs `scripts/publish-ci.mjs` on push to `main`.
+3. CI builds, auto **patch-bumps** when dist changes, publishes to npm, and pushes the version commit back to `main`.
+
+Manual bumps on `dev` fight this flow and can skip or confuse auto-bump logic.
+
+## Agent rule
+
+- Never edit `package.json` `version` unless the user explicitly asks for a specific version change outside the normal release flow.
+- Do not pin or predict the next npm version in commit messages or sibling repos.
