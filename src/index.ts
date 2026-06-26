@@ -11,6 +11,7 @@ export * from './lib/contentCatalogMeta';
 export * from './models/raw/openingBranchFenModel';
 
 export * from './lib/gameEnrichment';
+export * from './lib/gameIdentity';
 export * from './lib/gameReplay';
 export * from './lib/lichessOpenings';
 export * from './lib/positionUtils';
