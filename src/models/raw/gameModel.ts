@@ -119,6 +119,7 @@ const gameSchema = new Schema<IGame>(
 // Dedup / resume key (matches the existing production index). Not unique:
 // legacy lichess rows may share uuid 'UNKNOWN'.
 gameSchema.index({ import_from: 1, uuid: 1 });
+gameSchema.index({ uuid: 1 }, { background: true });
 gameSchema.index({ import_from: 1, import_batch: 1 });
 gameSchema.index({ import_from: 1, 'white.username': 1 });
 gameSchema.index({ import_from: 1, 'black.username': 1 });

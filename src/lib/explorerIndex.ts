@@ -1,4 +1,5 @@
 import type { EnrichedGame } from './gameEnrichment';
+import { isStableGameUuid } from './gameIdentity';
 import { applyUciToChess, chessAtInitialSetup } from './gameReplay';
 import { normalizeFen, positionKey } from './positionUtils';
 
@@ -47,10 +48,7 @@ export type ExplorerGameIndex = {
 };
 
 export function explorerGameIdFromEnriched(game: EnrichedGame): string | null {
-  if (!game.uuid || game.uuid === 'UNKNOWN') {
-    return null;
-  }
-  return game.uuid;
+  return isStableGameUuid(game.uuid) ? game.uuid : null;
 }
 
 export function outcomeDeltaFromResult(result: string): ExplorerOutcomeDelta {
