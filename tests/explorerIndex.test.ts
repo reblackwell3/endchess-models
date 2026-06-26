@@ -56,4 +56,12 @@ describe('buildExplorerIndexFromGame', () => {
     expect(index!.positions[0]!.positionKey).toBe(positionKey(START_FEN));
     expect(index!.positions[0]!.move.whiteWin).toBe(1);
   });
+
+  it('includes playedYear from utc_date on position move deltas', () => {
+    const index = buildExplorerIndexFromGame({
+      ...sampleGame,
+      utc_date: '2025.06.15',
+    });
+    expect(index!.positions[0]!.move.playedYear).toBe(2025);
+  });
 });
