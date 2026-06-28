@@ -18,6 +18,8 @@ export * from './lib/lessonTrainPosition';
 export * from './lib/lessonLineStart';
 export * from './lib/coursePreview';
 export * from './lib/explorerIndex';
+export * from './lib/trimUserImportedGames';
+export * from './lib/importJobStatus';
 
 export * from './models/system/systemImportDataModel';
 export * from './models/system/promoCodeModel';

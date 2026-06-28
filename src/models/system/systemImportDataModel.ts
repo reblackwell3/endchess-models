@@ -7,10 +7,23 @@ export interface Link {
   isImported: boolean;
 }
 
+export type ImportJobStatus = 'pending' | 'failed' | 'complete';
+export type ImportJobError = 'user_not_found' | 'unknown';
+export type ImportJobPlatform = 'chesscom' | 'lichess';
+
+export interface ImportJob {
+  status: ImportJobStatus;
+  platform?: ImportJobPlatform;
+  username?: string;
+  error?: ImportJobError;
+  updatedAt: Date;
+}
+
 export interface ISystemImportDataDocument extends Document {
   providerId: string;
   links: Link[];
   importedGames: Types.ObjectId[] | IGame[];
+  importJob?: ImportJob;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,6 +40,21 @@ const LinkSchema = new Schema<Link>({
   isImported: { type: Boolean, required: true, default: false },
 });
 
+const ImportJobSchema = new Schema<ImportJob>(
+  {
+    status: {
+      type: String,
+      enum: ['pending', 'failed', 'complete'],
+      required: true,
+    },
+    platform: { type: String, enum: ['chesscom', 'lichess'] },
+    username: { type: String },
+    error: { type: String, enum: ['user_not_found', 'unknown'] },
+    updatedAt: { type: Date, required: true },
+  },
+  { _id: false },
+);
+
 const schema = new Schema<ISystemImportData>(
   {
     providerId: {
@@ -38,6 +66,7 @@ const schema = new Schema<ISystemImportData>(
     importedGames: [
       { type: Schema.Types.ObjectId, ref: 'Game', required: true },
     ],
+    importJob: { type: ImportJobSchema },
   },
   { timestamps: true },
 );
