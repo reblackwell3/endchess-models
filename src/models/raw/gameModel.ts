@@ -56,6 +56,8 @@ export interface IGame extends Document {
   white: IGamePlayer;
   black: IGamePlayer;
   moves: IGameMove[];
+  /** Set when a user-requested engine analysis job is queued. */
+  analysisRequestedAt?: Date;
 }
 
 const playerSchema = new Schema<IGamePlayer>(
@@ -112,6 +114,7 @@ const gameSchema = new Schema<IGame>(
     white: { type: playerSchema, required: true },
     black: { type: playerSchema, required: true },
     moves: { type: [moveSchema], default: [] },
+    analysisRequestedAt: { type: Date },
   },
   { timestamps: true },
 );
