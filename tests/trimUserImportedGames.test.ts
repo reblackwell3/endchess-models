@@ -40,7 +40,7 @@ describe('trimUserImportedGames', () => {
 
   it('keeps the most recent games by end_time and deletes the rest', async () => {
     const providerId = 'prov-trim';
-    const gameIds = Array.from({ length: 1002 }, () => new Types.ObjectId());
+    const gameIds = Array.from({ length: 102 }, () => new Types.ObjectId());
 
     findImportDataMock.mockReturnValue({
       select: jest.fn().mockReturnValue({
@@ -59,18 +59,18 @@ describe('trimUserImportedGames', () => {
       }),
     });
 
-    const result = await trimUserImportedGames(providerId, 1000);
+    const result = await trimUserImportedGames(providerId, 100);
 
     expect(result).toEqual({
       trimmed: true,
-      keptCount: 1000,
+      keptCount: 100,
       evictedCount: 2,
     });
 
     const keptIds = updateImportDataMock.mock.calls[0][1].$set.importedGames as Types.ObjectId[];
-    expect(keptIds).toHaveLength(1000);
-    expect(String(keptIds[0])).toBe(String(gameIds[1001]));
-    expect(String(keptIds[999])).toBe(String(gameIds[2]));
+    expect(keptIds).toHaveLength(100);
+    expect(String(keptIds[0])).toBe(String(gameIds[101]));
+    expect(String(keptIds[99])).toBe(String(gameIds[2]));
 
     const evictedIds = deleteGamesMock.mock.calls[0][0]._id.$in as Types.ObjectId[];
     expect(evictedIds.map(String)).toEqual([String(gameIds[0]), String(gameIds[1])]);
@@ -89,7 +89,7 @@ describe('trimUserImportedGames', () => {
       }),
     });
 
-    const result = await trimUserImportedGames(providerId, 1000);
+    const result = await trimUserImportedGames(providerId, 100);
 
     expect(result).toEqual({
       trimmed: false,
@@ -99,5 +99,51 @@ describe('trimUserImportedGames', () => {
     expect(updateImportDataMock).not.toHaveBeenCalled();
     expect(deleteGamesMock).not.toHaveBeenCalled();
     expect(deleteAnalysisMock).not.toHaveBeenCalled();
+  });
+
+  it('keeps prioritized ids first when trimming at cap', async () => {
+    const providerId = 'prov-priority';
+    const olderIds = Array.from({ length: 100 }, () => new Types.ObjectId());
+    const newImportIds = [new Types.ObjectId(), new Types.ObjectId()];
+
+    findImportDataMock.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue({
+          importedGames: [...olderIds, ...newImportIds],
+        }),
+      }),
+    });
+
+    findGamesMock.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue([
+          ...olderIds.map((id, index) => ({
+            _id: id,
+            end_time: 1000 + index,
+          })),
+          ...newImportIds.map((id, index) => ({
+            _id: id,
+            end_time: 10 + index,
+          })),
+        ]),
+      }),
+    });
+
+    const result = await trimUserImportedGames(providerId, 100, {
+      prioritizeIds: newImportIds,
+    });
+
+    expect(result).toEqual({
+      trimmed: true,
+      keptCount: 100,
+      evictedCount: 2,
+    });
+
+    const keptIds = updateImportDataMock.mock.calls[0][1].$set
+      .importedGames as Types.ObjectId[];
+    expect(keptIds.map(String)).toEqual(
+      expect.arrayContaining(newImportIds.map(String)),
+    );
+    expect(keptIds).toHaveLength(100);
   });
 });

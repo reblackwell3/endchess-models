@@ -23,6 +23,8 @@ export interface ISystemImportDataDocument extends Document {
   providerId: string;
   links: Link[];
   importedGames: Types.ObjectId[] | IGame[];
+  /** Snapshot of tier-based import cap (5 free, 100 pro/trial). Set by backend. */
+  importGameLimit?: number;
   importJob?: ImportJob;
   createdAt: Date;
   updatedAt: Date;
@@ -66,6 +68,7 @@ const schema = new Schema<ISystemImportData>(
     importedGames: [
       { type: Schema.Types.ObjectId, ref: 'Game', required: true },
     ],
+    importGameLimit: { type: Number },
     importJob: { type: ImportJobSchema },
   },
   { timestamps: true },

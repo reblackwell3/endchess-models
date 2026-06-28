@@ -3,17 +3,32 @@ import { Analysis } from '../models/raw/analysisModel';
 import { Game } from '../models/raw/gameModel';
 import { SystemImportData } from '../models/system/systemImportDataModel';
 
-const DEFAULT_USER_IMPORTED_GAMES_LIMIT = 1000;
-
 type TrimResult = {
   trimmed: boolean;
   keptCount: number;
   evictedCount: number;
 };
 
+export type TrimUserImportedGamesOptions = {
+  /** When over cap, keep these games first (e.g. a batch just imported). */
+  prioritizeIds?: Types.ObjectId[];
+};
+
+function sortByEndTimeDesc(
+  ids: Types.ObjectId[],
+  endTimeById: Map<string, number>,
+): Types.ObjectId[] {
+  return [...ids].sort((a, b) => {
+    const aTime = endTimeById.get(String(a)) ?? 0;
+    const bTime = endTimeById.get(String(b)) ?? 0;
+    return bTime - aTime;
+  });
+}
+
 export async function trimUserImportedGames(
   providerId: string,
-  limit: number = DEFAULT_USER_IMPORTED_GAMES_LIMIT,
+  limit: number,
+  options?: TrimUserImportedGamesOptions,
 ): Promise<TrimResult> {
   const importData = await SystemImportData.findOne({ providerId })
     .select('importedGames')
@@ -36,13 +51,28 @@ export async function trimUserImportedGames(
     games.map((game) => [String(game._id), game.end_time ?? 0]),
   );
 
-  const sortedIds = [...gameIds].sort((a, b) => {
-    const aTime = endTimeById.get(String(a)) ?? 0;
-    const bTime = endTimeById.get(String(b)) ?? 0;
-    return bTime - aTime;
-  });
+  const prioritizeSet = new Set(
+    (options?.prioritizeIds ?? []).map((id) => String(id)),
+  );
+  const validPrioritize = gameIds.filter((id) => prioritizeSet.has(String(id)));
 
-  const keptIds = sortedIds.slice(0, limit);
+  let keptIds: Types.ObjectId[];
+  if (validPrioritize.length > 0) {
+    const prioritizedKept = sortByEndTimeDesc(validPrioritize, endTimeById).slice(
+      0,
+      limit,
+    );
+    const remainingSlots = limit - prioritizedKept.length;
+    const otherIds = gameIds.filter((id) => !prioritizeSet.has(String(id)));
+    const otherKept =
+      remainingSlots > 0
+        ? sortByEndTimeDesc(otherIds, endTimeById).slice(0, remainingSlots)
+        : [];
+    keptIds = [...prioritizedKept, ...otherKept];
+  } else {
+    keptIds = sortByEndTimeDesc(gameIds, endTimeById).slice(0, limit);
+  }
+
   const keptIdSet = new Set(keptIds.map((id) => String(id)));
   const evictedIds = gameIds.filter((id) => !keptIdSet.has(String(id)));
 
