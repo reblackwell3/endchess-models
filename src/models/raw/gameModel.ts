@@ -58,6 +58,8 @@ export interface IGame extends Document {
   moves: IGameMove[];
   /** Set when a user-requested engine analysis job is queued. */
   analysisRequestedAt?: Date;
+  /** When daily cap is hit, analyze is deferred to the next quota window. */
+  analysisScheduledFor?: Date;
 }
 
 const playerSchema = new Schema<IGamePlayer>(
@@ -115,6 +117,7 @@ const gameSchema = new Schema<IGame>(
     black: { type: playerSchema, required: true },
     moves: { type: [moveSchema], default: [] },
     analysisRequestedAt: { type: Date },
+    analysisScheduledFor: { type: Date },
   },
   { timestamps: true },
 );

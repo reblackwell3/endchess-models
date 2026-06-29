@@ -2,16 +2,16 @@
   "game": "507f1f77bcf86cd799439011",
   "moves": [
     {
-      "moveNumber": 1,
-      "move": "e2e4",
-      "lines": [
-        {
-          "lineNumber": 1,
-          "isTopMove": true,
-          "diff": 5,
-          "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-        }
-      ]
+      "plyIndex": 0,
+      "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "playedUci": "e2e4",
+      "diff": 5,
+      "setupEvalCp": 25,
+      "analysisDepth": 12,
+      "isTopMove": true,
+      "quality": "best",
+      "expectedPointsLost": 0,
+      "bestUci": "e2e4"
     }
   ]
 }

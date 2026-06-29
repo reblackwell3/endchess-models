@@ -3,6 +3,9 @@
 export { default as modelsMongoose, mongoose } from './mongoose';
 
 export * from './models/raw/analysisModel';
+
+export * from './analysis/moveQualityThresholds';
+export * from './analysis/classifyMoveQuality';
 export * from './models/raw/gameModel';
 export * from './models/raw/puzzleModel';
 export * from './models/raw/puzzleCatalogMetaModel';
@@ -31,4 +34,5 @@ export * from './models/user/itemEventModel';
 
 export * from './models/course/courseTypes';
 export * from './models/course/courseModel';
+export * from './models/course/mistakeLessonExclusionModel';
 export * from './models/course/positionEvalModel';
