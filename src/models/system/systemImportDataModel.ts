@@ -1,4 +1,9 @@
 import { Document, model, Schema, Model, Types } from 'mongoose';
+import type {
+  ImportJobError,
+  ImportJobStatus,
+  ImportPlatform,
+} from 'endchess-contracts';
 import { IGame } from '../raw/gameModel';
 
 export interface Link {
@@ -7,13 +12,9 @@ export interface Link {
   isImported: boolean;
 }
 
-export type ImportJobStatus = 'pending' | 'failed' | 'complete';
-export type ImportJobError = 'user_not_found' | 'unknown';
-export type ImportJobPlatform = 'chesscom' | 'lichess';
-
 export interface ImportJob {
   status: ImportJobStatus;
-  platform?: ImportJobPlatform;
+  platform?: ImportPlatform;
   username?: string;
   error?: ImportJobError;
   updatedAt: Date;
