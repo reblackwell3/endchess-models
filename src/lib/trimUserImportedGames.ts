@@ -1,7 +1,9 @@
 import { Types } from 'mongoose';
 import { Analysis } from '../models/raw/analysisModel';
+import type { IAnalysis } from '../models/raw/analysisModel';
 import { Game } from '../models/raw/gameModel';
 import { SystemImportData } from '../models/system/systemImportDataModel';
+import { isProtectedImportedGame } from './userImportedGameAnalysisStatus';
 
 type TrimResult = {
   trimmed: boolean;
@@ -44,47 +46,78 @@ export async function trimUserImportedGames(
 
   const gameIds = importData.importedGames;
   const games = await Game.find({ _id: { $in: gameIds } })
-    .select('_id end_time')
-    .lean<{ _id: Types.ObjectId; end_time?: number }[]>();
+    .select('_id end_time analysisRequestedAt analysisScheduledFor')
+    .lean<
+      {
+        _id: Types.ObjectId;
+        end_time?: number;
+        analysisRequestedAt?: Date;
+        analysisScheduledFor?: Date;
+      }[]
+    >();
 
   const endTimeById = new Map(
     games.map((game) => [String(game._id), game.end_time ?? 0]),
   );
+  const gameById = new Map(games.map((game) => [String(game._id), game]));
+
+  const analyses = await Analysis.find({ game: { $in: gameIds } })
+    .select('game moves')
+    .lean<Pick<IAnalysis, 'game' | 'moves'>[]>();
+  const analysisByGame = new Map(
+    analyses.map((row) => [String(row.game), row]),
+  );
+
+  const protectedIds: Types.ObjectId[] = [];
+  const evictableIds: Types.ObjectId[] = [];
+
+  for (const id of gameIds) {
+    const game = gameById.get(String(id));
+    const analysis = analysisByGame.get(String(id)) ?? null;
+    if (game && isProtectedImportedGame(game, analysis)) {
+      protectedIds.push(id);
+    } else {
+      evictableIds.push(id);
+    }
+  }
 
   const prioritizeSet = new Set(
     (options?.prioritizeIds ?? []).map((id) => String(id)),
   );
-  const validPrioritize = gameIds.filter((id) => prioritizeSet.has(String(id)));
+  const prioritizedEvictable = evictableIds.filter((id) =>
+    prioritizeSet.has(String(id)),
+  );
+  const otherEvictable = evictableIds.filter(
+    (id) => !prioritizeSet.has(String(id)),
+  );
 
-  let keptIds: Types.ObjectId[];
-  if (validPrioritize.length > 0) {
-    const prioritizedKept = sortByEndTimeDesc(validPrioritize, endTimeById).slice(
-      0,
-      limit,
-    );
-    const remainingSlots = limit - prioritizedKept.length;
-    const otherIds = gameIds.filter((id) => !prioritizeSet.has(String(id)));
-    const otherKept =
-      remainingSlots > 0
-        ? sortByEndTimeDesc(otherIds, endTimeById).slice(0, remainingSlots)
-        : [];
-    keptIds = [...prioritizedKept, ...otherKept];
-  } else {
-    keptIds = sortByEndTimeDesc(gameIds, endTimeById).slice(0, limit);
-  }
+  const slots = limit - protectedIds.length;
+  const keptPrioritized = sortByEndTimeDesc(prioritizedEvictable, endTimeById);
+  const remainingSlots = Math.max(0, slots - keptPrioritized.length);
+  const keptOther =
+    remainingSlots > 0
+      ? sortByEndTimeDesc(otherEvictable, endTimeById).slice(0, remainingSlots)
+      : [];
 
+  const keptIds = [...protectedIds, ...keptPrioritized, ...keptOther];
   const keptIdSet = new Set(keptIds.map((id) => String(id)));
   const evictedIds = gameIds.filter((id) => !keptIdSet.has(String(id)));
+
+  if (evictedIds.length === 0) {
+    return {
+      trimmed: false,
+      keptCount: gameIds.length,
+      evictedCount: 0,
+    };
+  }
 
   await SystemImportData.updateOne(
     { providerId },
     { $set: { importedGames: keptIds } },
   );
 
-  if (evictedIds.length > 0) {
-    await Analysis.deleteMany({ game: { $in: evictedIds } });
-    await Game.deleteMany({ _id: { $in: evictedIds } });
-  }
+  await Analysis.deleteMany({ game: { $in: evictedIds } });
+  await Game.deleteMany({ _id: { $in: evictedIds } });
 
   return {
     trimmed: true,

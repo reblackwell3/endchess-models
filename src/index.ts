@@ -17,12 +17,16 @@ export * from './lib/gameEnrichment';
 export * from './lib/gameIdentity';
 export * from './lib/gameReplay';
 export * from './lib/lichessOpenings';
+export * from './lib/pgnToUciPath';
+export * from './lib/inferOpeningFromReference';
 export * from './lib/positionUtils';
 export * from './lib/lessonTrainPosition';
 export * from './lib/lessonLineStart';
 export * from './lib/coursePreview';
 export * from './lib/explorerIndex';
 export * from './lib/trimUserImportedGames';
+export * from './lib/deleteUserImportedGames';
+export * from './lib/userImportedGameAnalysisStatus';
 export * from './lib/importJobStatus';
 
 export * from './models/system/systemImportDataModel';

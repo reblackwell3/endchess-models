@@ -45,6 +45,8 @@ export interface EnrichOverrides {
   rated?: boolean;
   rules?: string;
   tcn?: string;
+  eco?: string;
+  opening?: string;
 }
 
 export class GameEnrichmentError extends Error {}
@@ -275,9 +277,9 @@ export function enrichGameFromPgn(
     moves,
   };
 
-  const eco = clean(h['ECO']);
+  const eco = clean(h['ECO']) ?? clean(overrides.eco);
   if (eco) enriched.eco = eco;
-  const opening = clean(h['Opening']);
+  const opening = clean(h['Opening']) ?? clean(overrides.opening);
   if (opening) enriched.opening = opening;
   const termination = clean(h['Termination']);
   if (termination) enriched.termination = termination;
