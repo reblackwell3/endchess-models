@@ -6,6 +6,7 @@ export type ExplorerMoveStatByUciDoc = {
   draws: number;
   blackWins: number;
   eloSum: number;
+  lastPlayedYear?: number;
 };
 
 /** Mongo shape written by endchess-batch-import explorer index. */
