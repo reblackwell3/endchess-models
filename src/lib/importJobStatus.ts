@@ -1,13 +1,13 @@
 import type {
   ImportJobError,
-  ImportJobPlatform,
   ImportJobStatus,
-} from '../models/system/systemImportDataModel';
+  ImportPlatform,
+} from 'endchess-contracts';
 import { SystemImportData } from '../models/system/systemImportDataModel';
 
 export type ImportJobRecord = {
   status: ImportJobStatus;
-  platform?: ImportJobPlatform;
+  platform?: ImportPlatform;
   username?: string;
   error?: ImportJobError;
   updatedAt: Date;
@@ -15,7 +15,7 @@ export type ImportJobRecord = {
 
 export async function setImportJobPending(
   providerId: string,
-  platform: ImportJobPlatform,
+  platform: ImportPlatform,
   username: string,
 ): Promise<void> {
   await SystemImportData.findOneAndUpdate(
@@ -37,7 +37,7 @@ export async function setImportJobPending(
 export async function setImportJobFailed(
   providerId: string,
   error: ImportJobError,
-  platform?: ImportJobPlatform,
+  platform?: ImportPlatform,
   username?: string,
 ): Promise<void> {
   await SystemImportData.findOneAndUpdate(
