@@ -20,6 +20,7 @@ export * from './models/user/itemEventModel';
 
 export * from './models/course/courseTypes';
 export * from './models/course/courseModel';
+export * from './models/course/mistakeLessonExclusionModel';
 export * from './models/course/positionEvalModel';
 export * from './models/course/courseLessonViewModel';
 
