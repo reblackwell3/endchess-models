@@ -4,7 +4,6 @@ import { IGame } from '../raw/gameModel';
 export interface Link {
   site: string;
   url: string;
-  isImported: boolean;
 }
 
 export type ImportJobStatus = 'pending' | 'failed' | 'complete';
@@ -39,7 +38,6 @@ export interface ISystemImportDataModel extends Model<ISystemImportData> {
 const LinkSchema = new Schema<Link>({
   site: { type: String, required: true },
   url: { type: String, required: true },
-  isImported: { type: Boolean, required: true, default: false },
 });
 
 const ImportJobSchema = new Schema<ImportJob>(
