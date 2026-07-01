@@ -17,6 +17,7 @@ export * from './lib/lessonLineStart';
 export * from './lib/coursePreview';
 export * from './lib/explorerIndex';
 export * from './lib/trimUserImportedGames';
+export * from './lib/planUserImportedGameSync';
 export * from './lib/deleteUserImportedGames';
 export * from './lib/userImportedGameAnalysisStatus';
 export * from './lib/importJobStatus';
