@@ -25,6 +25,8 @@ export interface ISystemImportDataDocument extends Document {
   /** Snapshot of tier-based import cap (5 free, 100 pro/trial). Set by backend. */
   importGameLimit?: number;
   importJob?: ImportJob;
+  /** Game ids waiting for incremental My Mistakes course append after analysis. */
+  mistakeCoursePendingGameIds?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -68,6 +70,7 @@ const schema = new Schema<ISystemImportData>(
     ],
     importGameLimit: { type: Number },
     importJob: { type: ImportJobSchema },
+    mistakeCoursePendingGameIds: [{ type: String }],
   },
   { timestamps: true },
 );
