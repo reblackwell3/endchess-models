@@ -4,3 +4,4 @@ dist/
 coverage/
 package/
 .npmrc
+.DS_Store

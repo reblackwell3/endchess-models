@@ -13,6 +13,8 @@ import type {
 
 export interface ICourse extends Document {
   slug: string;
+  /** Set on per-user My Mistakes courses; omitted on global published courses. */
+  providerId?: string;
   title: string;
   description: string;
   phase: CoursePhase;
@@ -42,6 +44,7 @@ export interface ICourse extends Document {
 const courseSchema = new Schema<ICourse>(
   {
     slug: { type: String, required: true, index: true },
+    providerId: { type: String, index: true, sparse: true },
     title: { type: String, required: true },
     description: { type: String, required: true },
     phase: { type: String, required: true },
@@ -79,6 +82,8 @@ const courseSchema = new Schema<ICourse>(
 
 /** One row per slug+semver so prior versions stay in MongoDB for rollback. */
 courseSchema.index({ slug: 1, version: 1 }, { unique: true });
+/** Per-user mistake course parts (mistakes-1, mistakes-2, …). */
+courseSchema.index({ providerId: 1, slug: 1 }, { unique: true, sparse: true });
 
 export const Course: Model<ICourse> = model<ICourse>('Course', courseSchema);
 
@@ -139,6 +144,11 @@ export interface ILesson extends Document {
   };
   window: { fromPly: number; toPly: number };
   materialSignature?: string;
+  /** Eval (cp, user perspective) before the mistake move. */
+  setupEvalCp?: number;
+  mistakeUci?: string;
+  mistakeSan?: string;
+  bestUci?: string;
   quality: {
     avgCpLoss: number;
     maxCpLoss: number;
@@ -190,6 +200,10 @@ const lessonSchema = new Schema<ILesson>(
       toPly: { type: Number, required: true },
     },
     materialSignature: { type: String },
+    setupEvalCp: { type: Number },
+    mistakeUci: { type: String },
+    mistakeSan: { type: String },
+    bestUci: { type: String },
     quality: {
       avgCpLoss: { type: Number, required: true },
       maxCpLoss: { type: Number, required: true },

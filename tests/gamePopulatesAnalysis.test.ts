@@ -48,11 +48,12 @@ describe('Analysis Model Test', () => {
     expect(populatedAnalysis).toBeDefined();
     expect(populatedAnalysis!.game).toBeDefined();
     expect((populatedAnalysis!.game as any).import_from).toBe('chess.com');
-    expect(populatedAnalysis!.moves[0].lines[0].isTopMove).toBe(true);
-    expect(populatedAnalysis!.moves[0].lines[0].diff).toBe(5);
-    expect(populatedAnalysis!.moves[0].lines[0].fen).toBe(
+    expect(populatedAnalysis!.moves[0].isTopMove).toBe(true);
+    expect(populatedAnalysis!.moves[0].diff).toBe(5);
+    expect(populatedAnalysis!.moves[0].fen).toBe(
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
     );
-    expect(populatedAnalysis!.moves[0].move).toBe('e2e4');
+    expect(populatedAnalysis!.moves[0].playedUci).toBe('e2e4');
+    expect(populatedAnalysis!.moves[0].quality).toBe('best');
   });
 });

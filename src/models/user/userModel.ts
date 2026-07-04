@@ -34,6 +34,9 @@ export interface IFreeUsageDaily {
   dateKey: string;
   puzzles: number;
   srsReviews: number;
+  gameAnalyses: number;
+  /** Auto-queued game analyses (buffer top-up) consumed today. */
+  autoGameAnalyses?: number;
 }
 
 export interface IFreeUsage {
@@ -102,6 +105,8 @@ const freeUsageDailySchema = new Schema<IFreeUsageDaily>(
     dateKey: { type: String, required: true },
     puzzles: { type: Number, default: 0 },
     srsReviews: { type: Number, default: 0 },
+    gameAnalyses: { type: Number, default: 0 },
+    autoGameAnalyses: { type: Number, default: 0 },
   },
   { _id: false },
 );
