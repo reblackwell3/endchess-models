@@ -101,6 +101,13 @@ function pushVersionCommit(name, version) {
 
 const pkg = readPackage();
 const lockPath = join(root, 'package-lock.json');
+const DEP_SECTIONS = [
+  'dependencies',
+  'devDependencies',
+  'peerDependencies',
+  'optionalDependencies',
+  'overrides',
+];
 
 function lockHasLocalDeps(lockPath) {
   if (!fs.existsSync(lockPath)) {
@@ -114,12 +121,61 @@ function lockHasLocalDeps(lockPath) {
   );
 }
 
+function packageJsonHasFileDeps() {
+  const current = readPackage();
+  for (const section of DEP_SECTIONS) {
+    const deps = current[section];
+    if (!deps) {
+      continue;
+    }
+    for (const spec of Object.values(deps)) {
+      if (typeof spec === 'string' && spec.startsWith('file:')) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function rewriteFileDepsToNpm() {
+  const pkgPath = join(root, 'package.json');
+  const current = readPackage();
+  let changed = false;
+
+  for (const section of DEP_SECTIONS) {
+    const deps = current[section];
+    if (!deps) {
+      continue;
+    }
+    for (const [name, spec] of Object.entries(deps)) {
+      if (typeof spec !== 'string' || !spec.startsWith('file:')) {
+        continue;
+      }
+      const npmVersion = runCapture(`npm view ${name} version`);
+      console.log(`publish-ci: ${name} ${spec} -> ${npmVersion}`);
+      deps[name] = npmVersion;
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    fs.writeFileSync(pkgPath, `${JSON.stringify(current, null, 2)}\n`);
+  }
+
+  return changed;
+}
+
 function installDependencies() {
-  if (lockHasLocalDeps(lockPath)) {
+  const hasLocal = lockHasLocalDeps(lockPath) || packageJsonHasFileDeps();
+
+  if (hasLocal) {
     console.log(
-      'publish-ci: package-lock.json links local sibling packages; reinstalling from npm',
+      'publish-ci: local file: sibling deps detected; swapping to npm and reinstalling',
     );
-    fs.unlinkSync(lockPath);
+    rewriteFileDepsToNpm();
+    if (fs.existsSync(lockPath)) {
+      fs.unlinkSync(lockPath);
+    }
     run('npm install --ignore-scripts --no-audit --no-fund');
     return;
   }
