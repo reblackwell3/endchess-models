@@ -137,6 +137,17 @@ function packageJsonHasFileDeps() {
   return false;
 }
 
+function resolvePublishedSpec(name) {
+  try {
+    return runCapture(`npm view ${name} version`);
+  } catch {
+    console.log(
+      `publish-ci: ${name} not on npm; using github:reblackwell3/${name}#main`,
+    );
+    return `github:reblackwell3/${name}#main`;
+  }
+}
+
 function rewriteFileDepsToNpm() {
   const pkgPath = join(root, 'package.json');
   const current = readPackage();
@@ -151,9 +162,9 @@ function rewriteFileDepsToNpm() {
       if (typeof spec !== 'string' || !spec.startsWith('file:')) {
         continue;
       }
-      const npmVersion = runCapture(`npm view ${name} version`);
-      console.log(`publish-ci: ${name} ${spec} -> ${npmVersion}`);
-      deps[name] = npmVersion;
+      const publishedSpec = resolvePublishedSpec(name);
+      console.log(`publish-ci: ${name} ${spec} -> ${publishedSpec}`);
+      deps[name] = publishedSpec;
       changed = true;
     }
   }
