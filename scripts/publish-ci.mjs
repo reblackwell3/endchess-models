@@ -176,6 +176,27 @@ function rewriteFileDepsToNpm() {
   return changed;
 }
 
+function ensureGitHubDepsBuilt() {
+  const current = readPackage();
+  for (const section of DEP_SECTIONS) {
+    const deps = current[section];
+    if (!deps) {
+      continue;
+    }
+    for (const [name, spec] of Object.entries(deps)) {
+      if (typeof spec !== 'string' || !spec.startsWith('github:')) {
+        continue;
+      }
+      const depRoot = join(root, 'node_modules', name);
+      const distIndex = join(depRoot, 'dist', 'index.js');
+      if (fs.existsSync(depRoot) && !fs.existsSync(distIndex)) {
+        console.log(`publish-ci: building ${name} from GitHub checkout`);
+        run('npm run build', depRoot);
+      }
+    }
+  }
+}
+
 function installDependencies() {
   const hasLocal = lockHasLocalDeps(lockPath) || packageJsonHasFileDeps();
 
@@ -187,7 +208,12 @@ function installDependencies() {
     if (fs.existsSync(lockPath)) {
       fs.unlinkSync(lockPath);
     }
+    const nodeModulesPath = join(root, 'node_modules');
+    if (fs.existsSync(nodeModulesPath)) {
+      fs.rmSync(nodeModulesPath, { recursive: true, force: true });
+    }
     run('npm install --ignore-scripts --no-audit --no-fund');
+    ensureGitHubDepsBuilt();
     return;
   }
 
