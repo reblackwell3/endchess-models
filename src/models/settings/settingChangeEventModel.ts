@@ -13,7 +13,7 @@ const settingChangeEventSchema = new Schema<SettingChangeEventDoc>(
   {
     providerId: { type: String, required: true },
     settingKey: { type: String, required: true },
-    previousValue: { type: Schema.Types.Mixed, required: true },
+    previousValue: { type: Schema.Types.Mixed, default: null },
     newValue: { type: Schema.Types.Mixed, required: true },
     source: { type: String },
     occurredAt: { type: Date, required: true, default: () => new Date() },
