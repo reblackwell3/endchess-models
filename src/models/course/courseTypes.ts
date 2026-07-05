@@ -14,7 +14,11 @@ export type LessonTrainPosition = {
   setupUci?: string;
 };
 
-export type CoursePhase = 'opening' | 'middlegame' | 'endgame';
+export type CoursePhase =
+  | 'opening'
+  | 'middlegame'
+  | 'endgame'
+  | 'mistakes';
 
 /** Half-moves played on each course list thumbnail preview. */
 export const COURSE_PREVIEW_LINE_PLIES = 8;
@@ -28,9 +32,9 @@ export type CoursePreviewThumbnail = {
   setupUci?: string;
 };
 /** How explorer opening repertoire lines were selected at build time. */
-export type CourseAlgorithm = 'score' | 'popularity';
+export type CourseAlgorithm = 'popularity';
 
 export type GamePool = 'repertoire' | 'supplemental' | 'combined';
 export type ParentOpening = 'e4' | 'caro-kann' | 'grunfeld';
 export type SectionKind = 'line-branch' | 'structure' | 'material';
-export type LessonType = 'line' | 'replay';
+export type LessonType = 'line' | 'replay' | 'mistake';

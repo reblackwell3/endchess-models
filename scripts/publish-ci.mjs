@@ -101,6 +101,13 @@ function pushVersionCommit(name, version) {
 
 const pkg = readPackage();
 const lockPath = join(root, 'package-lock.json');
+const DEP_SECTIONS = [
+  'dependencies',
+  'devDependencies',
+  'peerDependencies',
+  'optionalDependencies',
+  'overrides',
+];
 
 function lockHasLocalDeps(lockPath) {
   if (!fs.existsSync(lockPath)) {
@@ -114,13 +121,92 @@ function lockHasLocalDeps(lockPath) {
   );
 }
 
-function installDependencies() {
-  if (lockHasLocalDeps(lockPath)) {
+function packageJsonHasFileDeps() {
+  const current = readPackage();
+  for (const section of DEP_SECTIONS) {
+    const deps = current[section];
+    if (!deps) {
+      continue;
+    }
+    for (const spec of Object.values(deps)) {
+      if (typeof spec === 'string' && spec.startsWith('file:')) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function resolvePublishedSpec(name) {
+  try {
+    return runCapture(`npm view ${name} version`);
+  } catch {
     console.log(
-      'publish-ci: package-lock.json links local sibling packages; reinstalling from npm',
+      `publish-ci: ${name} not on npm; using github:reblackwell3/${name}#main`,
     );
-    fs.unlinkSync(lockPath);
+    return `github:reblackwell3/${name}#main`;
+  }
+}
+
+function rewriteFileDepsToNpm() {
+  const pkgPath = join(root, 'package.json');
+  const current = readPackage();
+  let changed = false;
+
+  for (const section of DEP_SECTIONS) {
+    const deps = current[section];
+    if (!deps) {
+      continue;
+    }
+    for (const [name, spec] of Object.entries(deps)) {
+      if (typeof spec !== 'string' || !spec.startsWith('file:')) {
+        continue;
+      }
+      const publishedSpec = resolvePublishedSpec(name);
+      console.log(`publish-ci: ${name} ${spec} -> ${publishedSpec}`);
+      deps[name] = publishedSpec;
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    fs.writeFileSync(pkgPath, `${JSON.stringify(current, null, 2)}\n`);
+  }
+
+  return changed;
+}
+
+function ensureGitHubDepsBuilt() {
+  const current = readPackage();
+  for (const section of DEP_SECTIONS) {
+    const deps = current[section];
+    if (!deps) {
+      continue;
+    }
+    for (const [name, spec] of Object.entries(deps)) {
+      if (typeof spec !== 'string' || !spec.startsWith('github:')) {
+        continue;
+      }
+      const depRoot = join(root, 'node_modules', name);
+      const distIndex = join(depRoot, 'dist', 'index.js');
+      if (fs.existsSync(depRoot) && !fs.existsSync(distIndex)) {
+        console.log(`publish-ci: building ${name} from GitHub checkout`);
+        run('npm run build', depRoot);
+      }
+    }
+  }
+}
+
+function installDependencies() {
+  const hasLocal = lockHasLocalDeps(lockPath) || packageJsonHasFileDeps();
+
+  if (hasLocal) {
+    console.log(
+      'publish-ci: local file: sibling deps detected; swapping to npm and reinstalling',
+    );
+    rewriteFileDepsToNpm();
     run('npm install --ignore-scripts --no-audit --no-fund');
+    ensureGitHubDepsBuilt();
     return;
   }
 

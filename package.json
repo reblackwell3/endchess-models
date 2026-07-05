@@ -1,6 +1,6 @@
 {
   "name": "endchess-models",
-  "version": "2.2.9",
+  "version": "2.2.13",
   "description": "Mongoose schemas and server-side domain helpers for EndChess",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -39,7 +39,7 @@
   "homepage": "https://github.com/reblackwell3/endchess-models#readme",
   "dependencies": {
     "chess.js": "^1.4.0",
-    "endchess-contracts": "file:../endchess-contracts-2",
+    "endchess-contracts": "github:reblackwell3/endchess-contracts#main",
     "pgn-parser": "^2.2.1",
     "typescript": "^5.5.4"
   },

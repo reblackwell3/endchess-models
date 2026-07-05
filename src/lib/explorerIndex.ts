@@ -1,4 +1,5 @@
 import type { EnrichedGame } from './gameEnrichment';
+import { isStableGameUuid } from './gameIdentity';
 import { applyUciToChess, chessAtInitialSetup } from './gameReplay';
 import { normalizeFen, positionKey } from './positionUtils';
 
@@ -12,7 +13,17 @@ export type ExplorerMoveIndexDelta = ExplorerOutcomeDelta & {
   san: string;
   uci: string;
   eloSum: number;
+  /** Calendar year from game utc_date when indexed; drives positions.movesByUci.lastPlayedYear. */
+  playedYear?: number | null;
 };
+
+export function lastPlayedYearFromUtcDate(utcDate?: string): number | null {
+  if (!utcDate) {
+    return null;
+  }
+  const year = Number.parseInt(utcDate.slice(0, 4), 10);
+  return Number.isFinite(year) ? year : null;
+}
 
 export type ExplorerPositionIndexDelta = {
   positionKey: string;
@@ -37,10 +48,7 @@ export type ExplorerGameIndex = {
 };
 
 export function explorerGameIdFromEnriched(game: EnrichedGame): string | null {
-  if (!game.uuid || game.uuid === 'UNKNOWN') {
-    return null;
-  }
-  return game.uuid;
+  return isStableGameUuid(game.uuid) ? game.uuid : null;
 }
 
 export function outcomeDeltaFromResult(result: string): ExplorerOutcomeDelta {
@@ -68,6 +76,7 @@ export function buildExplorerIndexFromGame(
   const whiteElo = game.white.rating;
   const blackElo = game.black.rating;
   const eloSum = Math.round((whiteElo + blackElo) / 2);
+  const playedYear = lastPlayedYearFromUtcDate(game.utc_date);
   const outcome = outcomeDeltaFromResult(game.result);
 
   const positions: ExplorerPositionIndexDelta[] = [];
@@ -86,6 +95,7 @@ export function buildExplorerIndexFromGame(
         san: move.san,
         uci: move.uci,
         eloSum,
+        playedYear,
         ...outcome,
       },
       gameId,

@@ -58,6 +58,8 @@ export interface IGame extends Document {
   moves: IGameMove[];
   /** Set when a user-requested engine analysis job is queued. */
   analysisRequestedAt?: Date;
+  /** When daily cap is hit, analyze is deferred to the next quota window. */
+  analysisScheduledFor?: Date;
 }
 
 const playerSchema = new Schema<IGamePlayer>(
@@ -115,6 +117,7 @@ const gameSchema = new Schema<IGame>(
     black: { type: playerSchema, required: true },
     moves: { type: [moveSchema], default: [] },
     analysisRequestedAt: { type: Date },
+    analysisScheduledFor: { type: Date },
   },
   { timestamps: true },
 );
@@ -122,6 +125,7 @@ const gameSchema = new Schema<IGame>(
 // Dedup / resume key (matches the existing production index). Not unique:
 // legacy lichess rows may share uuid 'UNKNOWN'.
 gameSchema.index({ import_from: 1, uuid: 1 });
+gameSchema.index({ uuid: 1 }, { background: true });
 gameSchema.index({ import_from: 1, import_batch: 1 });
 gameSchema.index({ import_from: 1, 'white.username': 1 });
 gameSchema.index({ import_from: 1, 'black.username': 1 });

@@ -8,6 +8,8 @@ export interface UserSettingsDoc extends Document {
   autoShowTopReplayGame?: boolean;
   boardTheme?: string;
   replayAutoplaySpeed?: 'fast' | 'normal' | 'slow';
+  /** Consecutive successful line reviews before a mastered prefix is skipped. */
+  courseSrsRepetitions?: 1 | 2 | 3;
   trainingHintSplashCount?: number;
   trainingHintLastShownAt?: Date;
   explorerSplashCount?: number;
@@ -20,6 +22,8 @@ export interface UserSettingsDoc extends Document {
   replaySplashLastShownAt?: Date;
   replayAutoplaySettingsSplashCount?: number;
   replayAutoplaySettingsLastShownAt?: Date;
+  /** Per-fork white opening system choices (fork id → course slug or sentinel). */
+  whiteRepertoireForks?: Record<string, string>;
 }
 
 const userSettingsSchema = new Schema<UserSettingsDoc>(
@@ -31,6 +35,7 @@ const userSettingsSchema = new Schema<UserSettingsDoc>(
     autoShowTopReplayGame: { type: Boolean, default: true },
     boardTheme: { type: String, default: 'classic' },
     replayAutoplaySpeed: { type: String, default: 'fast' },
+    courseSrsRepetitions: { type: Number, default: 2, min: 1, max: 3 },
     trainingHintSplashCount: { type: Number, default: 0 },
     trainingHintLastShownAt: { type: Date },
     explorerSplashCount: { type: Number, default: 0 },
@@ -43,6 +48,7 @@ const userSettingsSchema = new Schema<UserSettingsDoc>(
     replaySplashLastShownAt: { type: Date },
     replayAutoplaySettingsSplashCount: { type: Number, default: 0 },
     replayAutoplaySettingsLastShownAt: { type: Date },
+    whiteRepertoireForks: { type: Schema.Types.Mixed },
   },
   { timestamps: true, versionKey: false },
 );
