@@ -32,6 +32,8 @@ export interface ICourse extends Document {
   cpThreshold: number;
   /** Opening repertoire line selection strategy (omitted on engine-built courses). */
   algorithm?: CourseAlgorithm;
+  /** White opening hub grouping for 1.e4 / 1.d4 family courses. */
+  repertoireCollection?: 'e4' | 'd4';
   filters: {
     minElo: number;
     maxElo: number;
@@ -61,6 +63,7 @@ const courseSchema = new Schema<ICourse>(
     confirmDepth: { type: Number, required: true },
     cpThreshold: { type: Number, required: true },
     algorithm: { type: String },
+    repertoireCollection: { type: String },
     filters: {
       minElo: { type: Number, required: true },
       maxElo: { type: Number, required: true },

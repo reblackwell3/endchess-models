@@ -22,3 +22,4 @@ export * from './lib/planUserImportedGameSync';
 export * from './lib/deleteUserImportedGames';
 export * from './lib/userImportedGameAnalysisStatus';
 export * from './lib/importJobStatus';
+export * from './lib/courseLineMastery';

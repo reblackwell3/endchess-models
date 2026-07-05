@@ -22,6 +22,8 @@ export interface UserSettingsDoc extends Document {
   replaySplashLastShownAt?: Date;
   replayAutoplaySettingsSplashCount?: number;
   replayAutoplaySettingsLastShownAt?: Date;
+  /** Per-fork white opening system choices (fork id → course slug or sentinel). */
+  whiteRepertoireForks?: Record<string, string>;
 }
 
 const userSettingsSchema = new Schema<UserSettingsDoc>(
@@ -46,6 +48,7 @@ const userSettingsSchema = new Schema<UserSettingsDoc>(
     replaySplashLastShownAt: { type: Date },
     replayAutoplaySettingsSplashCount: { type: Number, default: 0 },
     replayAutoplaySettingsLastShownAt: { type: Date },
+    whiteRepertoireForks: { type: Schema.Types.Mixed },
   },
   { timestamps: true, versionKey: false },
 );
