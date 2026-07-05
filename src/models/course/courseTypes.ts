@@ -32,7 +32,7 @@ export type CoursePreviewThumbnail = {
   setupUci?: string;
 };
 /** How explorer opening repertoire lines were selected at build time. */
-export type CourseAlgorithm = 'score' | 'popularity';
+export type CourseAlgorithm = 'popularity';
 
 export type GamePool = 'repertoire' | 'supplemental' | 'combined';
 export type ParentOpening = 'e4' | 'caro-kann' | 'grunfeld';
