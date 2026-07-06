@@ -8,19 +8,25 @@ const NAJDORF_PGN =
   '1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6';
 const SICILIAN_PGN = '1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3';
 
-function row(eco: string, opening: string, pgn: string): OpeningReferenceRow {
+function row(
+  eco: string,
+  opening: string,
+  pgn: string,
+  lineId: number,
+  familyId: number,
+): OpeningReferenceRow {
   const uciPath = openingPgnToUciPath(pgn);
   if (!uciPath) {
     throw new Error(`Invalid fixture PGN: ${pgn}`);
   }
-  return { eco, opening, uciPath };
+  return { eco, opening, uciPath, lineId, familyId };
 }
 
 describe('matchOpeningFromReferenceIndex', () => {
   const index: OpeningReferenceRow[] = [
-    row('B20', 'Sicilian Defense', '1. e4 c5'),
-    row('B90', 'Sicilian Defense: Najdorf Variation', NAJDORF_PGN),
-    row('B50', 'Sicilian Defense: Modern Variations', SICILIAN_PGN),
+    row('B20', 'Sicilian Defense', '1. e4 c5', 1, 1),
+    row('B90', 'Sicilian Defense: Najdorf Variation', NAJDORF_PGN, 2, 1),
+    row('B50', 'Sicilian Defense: Modern Variations', SICILIAN_PGN, 3, 1),
   ];
 
   it('returns the deepest matching named line (Najdorf)', () => {
@@ -32,6 +38,8 @@ describe('matchOpeningFromReferenceIndex', () => {
     expect(match).toEqual({
       eco: 'B90',
       opening: 'Sicilian Defense: Najdorf Variation',
+      lineId: 2,
+      familyId: 1,
     });
   });
 
@@ -44,6 +52,8 @@ describe('matchOpeningFromReferenceIndex', () => {
     expect(match).toEqual({
       eco: 'B50',
       opening: 'Sicilian Defense: Modern Variations',
+      lineId: 3,
+      familyId: 1,
     });
   });
 
@@ -67,6 +77,8 @@ describe('matchOpeningFromReferenceIndex', () => {
     expect(match).toEqual({
       eco: 'B20',
       opening: 'Sicilian Defense',
+      lineId: 1,
+      familyId: 1,
     });
   });
 });

@@ -18,6 +18,7 @@ export * from './lib/coursePreview';
 export * from './lib/explorerIndex';
 export * from './lib/trimUserImportedGames';
 export * from './lib/openingSeoSlugs';
+export * from './lib/openingCatalog';
 export * from './lib/planUserImportedGameSync';
 export * from './lib/deleteUserImportedGames';
 export * from './lib/userImportedGameAnalysisStatus';
