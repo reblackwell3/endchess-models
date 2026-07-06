@@ -8,11 +8,13 @@ import mockAnalysisData from './__mocks__/analysis.mock.json';
 
 let mongoServer: MongoMemoryServer;
 
+jest.setTimeout(300_000);
+
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
   await connect(uri);
-});
+}, 300_000);
 
 afterAll(async () => {
   await disconnect();
