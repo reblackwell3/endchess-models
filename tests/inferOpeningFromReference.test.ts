@@ -12,21 +12,26 @@ function row(
   eco: string,
   opening: string,
   pgn: string,
-  lineId: number,
-  familyId: number,
+  ids: { lineId: number; familyId: number },
 ): OpeningReferenceRow {
   const uciPath = openingPgnToUciPath(pgn);
   if (!uciPath) {
     throw new Error(`Invalid fixture PGN: ${pgn}`);
   }
-  return { eco, opening, uciPath, lineId, familyId };
+  return { eco, opening, uciPath, ...ids };
 }
 
 describe('matchOpeningFromReferenceIndex', () => {
   const index: OpeningReferenceRow[] = [
-    row('B20', 'Sicilian Defense', '1. e4 c5', 1, 1),
-    row('B90', 'Sicilian Defense: Najdorf Variation', NAJDORF_PGN, 2, 1),
-    row('B50', 'Sicilian Defense: Modern Variations', SICILIAN_PGN, 3, 1),
+    row('B20', 'Sicilian Defense', '1. e4 c5', { lineId: 1, familyId: 1 }),
+    row('B90', 'Sicilian Defense: Najdorf Variation', NAJDORF_PGN, {
+      lineId: 2,
+      familyId: 1,
+    }),
+    row('B50', 'Sicilian Defense: Modern Variations', SICILIAN_PGN, {
+      lineId: 3,
+      familyId: 1,
+    }),
   ];
 
   it('returns the deepest matching named line (Najdorf)', () => {

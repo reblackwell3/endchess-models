@@ -268,13 +268,15 @@ export async function classifyGameOpening(params: {
   };
 }
 
-export async function applyOpeningClassification<T extends {
-  eco?: string;
-  opening?: string;
-  openingFamilyId?: number;
-  openingLineId?: number;
-  moves: Array<{ uci: string }>;
-}>(game: T): Promise<T> {
+export async function applyOpeningClassification<
+  T extends {
+    eco?: string;
+    opening?: string;
+    openingFamilyId?: number;
+    openingLineId?: number;
+    moves: Array<{ uci: string }>;
+  },
+>(game: T): Promise<T> {
   const classified = await classifyGameOpening({
     movesUci: game.moves.map((move) => move.uci),
     opening: game.opening,
