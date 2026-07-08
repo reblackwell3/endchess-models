@@ -9,6 +9,29 @@ export type DeleteImportedGamesResult = {
   deletedCount: number;
 };
 
+type AnalysisAgeFields = Pick<
+  IAnalysis,
+  'game' | 'moves' | 'analyzedAt' | 'updatedAt' | 'createdAt'
+> & {
+  _id?: Types.ObjectId;
+};
+
+function analysisCompletedAt(analysis: AnalysisAgeFields): Date | null {
+  if (analysis.analyzedAt) {
+    return analysis.analyzedAt;
+  }
+  if (analysis.updatedAt) {
+    return analysis.updatedAt;
+  }
+  if (analysis.createdAt) {
+    return analysis.createdAt;
+  }
+  if (analysis._id instanceof Types.ObjectId) {
+    return analysis._id.getTimestamp();
+  }
+  return null;
+}
+
 async function findReadyAnalyzedGameIdsOlderThan(
   providerId: string,
   olderThan: Date,
@@ -22,31 +45,22 @@ async function findReadyAnalyzedGameIdsOlderThan(
     return [];
   }
 
-  const olderThanSeconds = Math.floor(olderThan.getTime() / 1000);
+  const analyses = await Analysis.find({ game: { $in: gameIds } })
+    .select('game moves analyzedAt updatedAt createdAt')
+    .lean<AnalysisAgeFields[]>();
 
-  const candidateGames = await Game.find({
-    _id: { $in: gameIds },
-    end_time: { $lt: olderThanSeconds },
-  })
-    .select('_id')
-    .lean<{ _id: Types.ObjectId }[]>();
-
-  if (candidateGames.length === 0) {
-    return [];
-  }
-
-  const candidateIds = candidateGames.map((game) => game._id);
-  const analyses = await Analysis.find({ game: { $in: candidateIds } })
-    .select('game moves')
-    .lean<Pick<IAnalysis, 'game' | 'moves'>[]>();
-
-  const analysisByGame = new Map(
-    analyses.map((row) => [String(row.game), row]),
-  );
-
-  return candidateIds.filter((id) =>
-    isReadyAnalyzedImportedGame(analysisByGame.get(String(id)) ?? null),
-  );
+  return analyses
+    .filter((row) => {
+      if (!isReadyAnalyzedImportedGame(row)) {
+        return false;
+      }
+      const completedAt = analysisCompletedAt(row);
+      if (completedAt == null) {
+        return false;
+      }
+      return completedAt < olderThan;
+    })
+    .map((row) => row.game as Types.ObjectId);
 }
 
 export async function countAnalyzedUserGamesOlderThan(

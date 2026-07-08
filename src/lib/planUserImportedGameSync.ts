@@ -82,6 +82,10 @@ export async function planUserImportedGameSync(
   const existingByUuid = new Map(
     games.map((game) => [game.uuid, game]),
   );
+  const existingUuids = new Set(games.map((game) => game.uuid));
+  const hasCandidateOverlap = options.candidates.some((candidate) =>
+    existingUuids.has(candidate.uuid),
+  );
 
   const protectedIds: Types.ObjectId[] = [];
   const evictableExisting: Extract<PoolItem, { kind: 'existing' }>[] = [];
@@ -123,7 +127,11 @@ export async function planUserImportedGameSync(
 
   for (const item of evictableExisting) {
     if (!candidateUuids.has(item.uuid)) {
-      otherPool.push(item);
+      // Re-syncing the same account may keep spare unanalyzed games; switching
+      // accounts (no uuid overlap) evicts all stale unanalyzed library games.
+      if (hasCandidateOverlap) {
+        otherPool.push(item);
+      }
     }
   }
 

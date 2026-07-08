@@ -7,6 +7,8 @@ export type OpeningReferenceRow = {
   eco: string;
   opening: string;
   uciPath: readonly string[];
+  lineId: number;
+  familyId: number;
 };
 
 let cachedIndex: OpeningReferenceRow[] | null = null;
@@ -26,19 +28,29 @@ export async function loadOpeningReferenceIndex(): Promise<OpeningReferenceRow[]
   if (!loadPromise) {
     loadPromise = (async (): Promise<OpeningReferenceRow[]> => {
       const rows = await OpeningBranchFen.find()
-        .select('opening eco pgn')
-        .lean<{ opening: string; eco: string; pgn: string }[]>();
+        .select('lineId familyId opening eco pgn')
+        .lean<
+          {
+            lineId: number;
+            familyId: number;
+            opening: string;
+            eco: string;
+            pgn: string;
+          }[]
+        >();
 
       const index: OpeningReferenceRow[] = [];
       for (const row of rows) {
         const uciPath = openingPgnToUciPath(row.pgn);
-        if (!uciPath || uciPath.length === 0) {
+        if (!uciPath || uciPath.length === 0 || !row.lineId || !row.familyId) {
           continue;
         }
         index.push({
           eco: row.eco?.trim() ?? '',
           opening: row.opening.trim(),
           uciPath,
+          lineId: row.lineId,
+          familyId: row.familyId,
         });
       }
 
@@ -70,7 +82,7 @@ export function matchOpeningFromReferenceIndex(
   movesUci: readonly string[],
   index: readonly OpeningReferenceRow[],
   options?: { maxFullMove?: number },
-): { eco: string; opening: string } | null {
+): { eco: string; opening: string; lineId: number; familyId: number } | null {
   if (movesUci.length === 0 || index.length === 0) {
     return null;
   }
@@ -96,13 +108,23 @@ export function matchOpeningFromReferenceIndex(
     return null;
   }
 
-  return { eco: best.eco, opening: best.opening };
+  return {
+    eco: best.eco,
+    opening: best.opening,
+    lineId: best.lineId,
+    familyId: best.familyId,
+  };
 }
 
 export async function inferOpeningFromReference(
   movesUci: readonly string[],
   options?: { maxFullMove?: number },
-): Promise<{ eco: string; opening: string } | null> {
+): Promise<{
+  eco: string;
+  opening: string;
+  lineId: number;
+  familyId: number;
+} | null> {
   const index = await loadOpeningReferenceIndex();
   return matchOpeningFromReferenceIndex(movesUci, index, options);
 }

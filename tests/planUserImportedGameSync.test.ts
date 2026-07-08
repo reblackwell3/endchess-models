@@ -137,6 +137,45 @@ describe('planUserImportedGameSync', () => {
     expect(plan.evictedIds.map(String)).toEqual([String(unanalyzed)]);
     expect(plan.keptNewCandidateUuids).toEqual(['new-1']);
   });
+
+  it('evicts all unanalyzed games when importing from a different account', async () => {
+    const providerId = 'prov-switch';
+    const analyzed = new Types.ObjectId();
+    const unanalyzedA = new Types.ObjectId();
+    const unanalyzedB = new Types.ObjectId();
+    mockImportData([analyzed, unanalyzedA, unanalyzedB]);
+
+    findGamesMock.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue([
+          { _id: analyzed, uuid: 'old-analyzed', end_time: 1 },
+          { _id: unanalyzedA, uuid: 'old-unanalyzed-a', end_time: 50 },
+          { _id: unanalyzedB, uuid: 'old-unanalyzed-b', end_time: 40 },
+        ]),
+      }),
+    });
+
+    findAnalysisMock.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue([
+          { game: analyzed, moves: [flatAnalysisMove()] },
+        ]),
+      }),
+    });
+
+    const plan = await planUserImportedGameSync(providerId, 100, {
+      candidates: [
+        { uuid: 'new-1', end_time: 100 },
+        { uuid: 'new-2', end_time: 90 },
+      ],
+    });
+
+    expect(plan.keptExistingIds.map(String)).toEqual([String(analyzed)]);
+    expect(plan.evictedIds.map(String)).toEqual(
+      expect.arrayContaining([String(unanalyzedA), String(unanalyzedB)]),
+    );
+    expect(plan.keptNewCandidateUuids).toEqual(['new-1', 'new-2']);
+  });
 });
 
 describe('evictUserImportedGames', () => {

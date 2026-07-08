@@ -19,6 +19,10 @@ export interface IAnalysisMove {
 export interface IAnalysis extends Document {
   game: Types.ObjectId;
   moves: IAnalysisMove[];
+  /** When the flat analysis was completed (used for import retention). */
+  analyzedAt?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const analysisMoveSchema = new Schema<IAnalysisMove>(
@@ -42,14 +46,18 @@ const analysisMoveSchema = new Schema<IAnalysisMove>(
   { _id: false },
 );
 
-const analysisSchema: Schema = new Schema({
-  game: {
-    type: Schema.Types.ObjectId,
-    ref: 'Game',
-    required: true,
+const analysisSchema: Schema = new Schema(
+  {
+    game: {
+      type: Schema.Types.ObjectId,
+      ref: 'Game',
+      required: true,
+    },
+    moves: [analysisMoveSchema],
+    analyzedAt: { type: Date },
   },
-  moves: [analysisMoveSchema],
-});
+  { timestamps: true },
+);
 
 export const Analysis = model<IAnalysis>('Analysis', analysisSchema);
 

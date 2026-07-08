@@ -35,6 +35,10 @@ export interface IGame extends Document {
   result: string; // '1-0' | '0-1' | '1/2-1/2' | '*'
   eco?: string;
   opening?: string;
+  /** Canonical opening family id from opening_families. */
+  openingFamilyId?: number;
+  /** Canonical lichess opening line id from opening_branch_fens. */
+  openingLineId?: number;
   termination?: string;
 
   end_time: number; // unix seconds
@@ -95,6 +99,8 @@ const gameSchema = new Schema<IGame>(
     result: { type: String, default: '*' },
     eco: { type: String },
     opening: { type: String },
+    openingFamilyId: { type: Number },
+    openingLineId: { type: Number },
     termination: { type: String },
 
     end_time: { type: Number, required: true, default: 0 },
@@ -129,6 +135,8 @@ gameSchema.index({ uuid: 1 }, { background: true });
 gameSchema.index({ import_from: 1, import_batch: 1 });
 gameSchema.index({ import_from: 1, 'white.username': 1 });
 gameSchema.index({ import_from: 1, 'black.username': 1 });
+gameSchema.index({ import_from: 1, openingFamilyId: 1 });
+gameSchema.index({ import_from: 1, openingLineId: 1 });
 gameSchema.index({ end_time: 1 });
 
 export const Game: Model<IGame> = model<IGame>('Game', gameSchema);
