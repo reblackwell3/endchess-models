@@ -47,6 +47,7 @@
     "mongoose": "^8.5.0"
   },
   "devDependencies": {
+    "endchess-npm-publish-ci": "^1.0.0",
     "@types/jest": "^29.5.13",
     "@types/mongoose": "^5.11.97",
     "mongoose": "^8.6.1",
