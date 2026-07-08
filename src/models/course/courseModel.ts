@@ -38,7 +38,8 @@ export interface ICourse extends Document {
     minElo: number;
     maxElo: number;
     sources: string[];
-    gameBudget: number;
+    /** Games pulled from the master pool when this course was built (0 for opening explorer walks). */
+    numGamesUsed: number;
   };
   previewThumbnails?: CoursePreviewThumbnail[];
 }
@@ -68,7 +69,7 @@ const courseSchema = new Schema<ICourse>(
       minElo: { type: Number, required: true },
       maxElo: { type: Number, required: true },
       sources: { type: [String], required: true },
-      gameBudget: { type: Number, required: true },
+      numGamesUsed: { type: Number, required: true },
     },
     previewThumbnails: {
       type: [
