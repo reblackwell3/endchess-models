@@ -39,6 +39,7 @@ export * from './models/puzzle/puzzleCompletionDocTypes';
 export * from './models/puzzle/puzzleCompletionModel';
 
 export * from './models/settings/userSettingsModel';
+export * from './models/settings/userCourseSettingsModel';
 export * from './models/settings/settingChangeEventModel';
 
 export * from './models/deviceSettings/deviceSettingsDocTypes';
