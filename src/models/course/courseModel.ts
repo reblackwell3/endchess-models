@@ -147,6 +147,11 @@ export interface ILesson extends Document {
   };
   window: { fromPly: number; toPly: number };
   materialSignature?: string;
+  /**
+   * Elite-DB game count for this repertoire line (opening popularity).
+   * Absent on engine-built / middlegame / endgame lessons.
+   */
+  N?: number;
   /** Eval (cp, user perspective) before the mistake move. */
   setupEvalCp?: number;
   mistakeUci?: string;
@@ -203,6 +208,7 @@ const lessonSchema = new Schema<ILesson>(
       toPly: { type: Number, required: true },
     },
     materialSignature: { type: String },
+    N: { type: Number },
     setupEvalCp: { type: Number },
     mistakeUci: { type: String },
     mistakeSan: { type: String },
