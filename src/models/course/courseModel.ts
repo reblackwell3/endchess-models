@@ -38,7 +38,8 @@ export interface ICourse extends Document {
     minElo: number;
     maxElo: number;
     sources: string[];
-    gameBudget: number;
+    /** Games pulled from the master pool when this course was built (0 for opening explorer walks). */
+    numGamesUsed: number;
   };
   previewThumbnails?: CoursePreviewThumbnail[];
 }
@@ -68,7 +69,7 @@ const courseSchema = new Schema<ICourse>(
       minElo: { type: Number, required: true },
       maxElo: { type: Number, required: true },
       sources: { type: [String], required: true },
-      gameBudget: { type: Number, required: true },
+      numGamesUsed: { type: Number, required: true },
     },
     previewThumbnails: {
       type: [
@@ -147,6 +148,11 @@ export interface ILesson extends Document {
   };
   window: { fromPly: number; toPly: number };
   materialSignature?: string;
+  /**
+   * Elite-DB game count for this repertoire line (opening popularity).
+   * Absent on engine-built / middlegame / endgame lessons.
+   */
+  N?: number;
   /** Eval (cp, user perspective) before the mistake move. */
   setupEvalCp?: number;
   mistakeUci?: string;
@@ -203,6 +209,7 @@ const lessonSchema = new Schema<ILesson>(
       toPly: { type: Number, required: true },
     },
     materialSignature: { type: String },
+    N: { type: Number },
     setupEvalCp: { type: Number },
     mistakeUci: { type: String },
     mistakeSan: { type: String },

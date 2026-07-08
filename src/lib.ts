@@ -11,6 +11,7 @@ export * from './lib/gameReplay';
 export * from './lib/lichessOpenings';
 export * from './lib/pgnToUciPath';
 export * from './lib/inferOpeningFromReference';
+export * from './lib/openingUpgrade';
 export * from './lib/positionUtils';
 export * from './lib/lessonTrainPosition';
 export * from './lib/lessonLineStart';

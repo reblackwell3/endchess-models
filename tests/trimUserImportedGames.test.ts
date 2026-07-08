@@ -273,27 +273,27 @@ describe('deleteAnalyzedUserGamesOlderThan', () => {
     deleteAnalysisMock.mockResolvedValue(undefined);
   });
 
-  it('deletes only ready analyzed games older than cutoff', async () => {
+  it('deletes only ready analyzed games whose analysis is older than cutoff', async () => {
     const providerId = 'prov-prune';
     const oldAnalyzed = new Types.ObjectId();
     const oldUnanalyzed = new Types.ObjectId();
-    const recentAnalyzed = new Types.ObjectId();
+    const recentlyAnalyzedOldGame = new Types.ObjectId();
 
-    mockImportData([oldAnalyzed, oldUnanalyzed, recentAnalyzed]);
-
-    findGamesMock.mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        lean: jest.fn().mockResolvedValue([
-          { _id: oldAnalyzed },
-          { _id: oldUnanalyzed },
-        ]),
-      }),
-    });
+    mockImportData([oldAnalyzed, oldUnanalyzed, recentlyAnalyzedOldGame]);
 
     findAnalysisMock.mockReturnValue({
       select: jest.fn().mockReturnValue({
         lean: jest.fn().mockResolvedValue([
-          { game: oldAnalyzed, moves: [flatAnalysisMove()] },
+          {
+            game: oldAnalyzed,
+            moves: [flatAnalysisMove()],
+            analyzedAt: new Date('2019-12-01T00:00:00.000Z'),
+          },
+          {
+            game: recentlyAnalyzedOldGame,
+            moves: [flatAnalysisMove()],
+            analyzedAt: new Date('2025-06-01T00:00:00.000Z'),
+          },
         ]),
       }),
     });
@@ -302,6 +302,7 @@ describe('deleteAnalyzedUserGamesOlderThan', () => {
     const result = await deleteAnalyzedUserGamesOlderThan(providerId, olderThan);
 
     expect(result).toEqual({ deletedCount: 1 });
+    expect(findGamesMock).not.toHaveBeenCalled();
     expect(deleteGamesMock).toHaveBeenCalledWith({
       _id: { $in: [oldAnalyzed] },
     });

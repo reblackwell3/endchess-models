@@ -3,6 +3,8 @@ import { Document, Model, model, Schema } from 'mongoose';
 export interface ITopMove {
   uci: string;
   scoreCp: number;
+  /** Full UCI principal variation from Stockfish MultiPV (optional on legacy cache rows). */
+  pv?: string;
 }
 
 /** Cached Stockfish eval for a normalized position at a given search depth. */
@@ -19,6 +21,7 @@ const topMoveSchema = new Schema<ITopMove>(
   {
     uci: { type: String, required: true },
     scoreCp: { type: Number, required: true },
+    pv: { type: String },
   },
   { _id: false },
 );
