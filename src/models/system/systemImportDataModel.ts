@@ -54,7 +54,7 @@ const ImportJobSchema = new Schema<ImportJob>(
     },
     platform: { type: String, enum: ['chesscom', 'lichess'] },
     username: { type: String },
-    error: { type: String, enum: ['user_not_found', 'unknown'] },
+    error: { type: String, enum: ['user_not_found', 'unknown', 'timed_out'] },
     updatedAt: { type: Date, required: true },
   },
   { _id: false },
