@@ -39,7 +39,7 @@
   "homepage": "https://github.com/reblackwell3/endchess-models#readme",
   "dependencies": {
     "chess.js": "^1.4.0",
-    "endchess-contracts": "2.0.4",
+    "endchess-contracts": "file:../endchess-contracts",
     "pgn-parser": "^2.2.1",
     "typescript": "^5.5.4"
   },

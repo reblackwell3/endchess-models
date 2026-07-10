@@ -77,6 +77,8 @@ export async function setImportJobComplete(providerId: string): Promise<void> {
 
 export const PENDING_IMPORT_TIMEOUT_MS = 4 * 60 * 60 * 1000;
 
+export const STALE_IMPORT_JOB_ERROR = 'timed_out' satisfies ImportJobError;
+
 export async function expireStalePendingImportJob(
   providerId: string,
 ): Promise<void> {
@@ -90,7 +92,7 @@ export async function expireStalePendingImportJob(
     {
       $set: {
         'importJob.status': 'failed',
-        'importJob.error': 'timed_out',
+        'importJob.error': STALE_IMPORT_JOB_ERROR,
         'importJob.updatedAt': new Date(),
       },
     },
