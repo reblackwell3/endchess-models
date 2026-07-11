@@ -25,11 +25,24 @@ function resolveFilters(filters: LegacyCourseFilters): NonNullable<CourseMetadat
   };
 }
 
+function nestedMetadataFiltersArePopulated(
+  filters: CourseMetadata['filters'] | undefined,
+): boolean {
+  if (!filters) {
+    return false;
+  }
+  return (
+    (filters.sources?.length ?? 0) > 0 || (filters.numGamesUsed ?? 0) > 0
+  );
+}
+
 /** Merge nested metadata with legacy top-level publish fields. */
 export function resolveCourseMetadata(course: CourseMetadataSource): CourseMetadata {
   const generatedAt = course.metadata?.generatedAt ?? course.generatedAt;
   const algorithm = course.metadata?.algorithm ?? course.algorithm;
-  const rawFilters = course.metadata?.filters ?? course.filters;
+  const rawFilters = nestedMetadataFiltersArePopulated(course.metadata?.filters)
+    ? course.metadata!.filters!
+    : course.filters;
   const builderCommitSha = course.metadata?.builderCommitSha;
 
   const metadata: CourseMetadata = {};

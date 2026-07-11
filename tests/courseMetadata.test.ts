@@ -50,6 +50,36 @@ describe('courseMetadata', () => {
     });
   });
 
+  it('ignores empty nested metadata.filters shells from mongoose', () => {
+    expect(
+      resolveCourseMetadata({
+        generatedAt: new Date('2026-01-01T00:00:00.000Z'),
+        filters: {
+          minElo: 2400,
+          maxElo: 2800,
+          sources: ['lichess'],
+          numGamesUsed: 100,
+        },
+        metadata: {
+          filters: {
+            minElo: 0,
+            maxElo: 0,
+            sources: [],
+            numGamesUsed: 0,
+          },
+        },
+      }),
+    ).toEqual({
+      generatedAt: new Date('2026-01-01T00:00:00.000Z'),
+      filters: {
+        minElo: 2400,
+        maxElo: 2800,
+        sources: ['lichess'],
+        numGamesUsed: 100,
+      },
+    });
+  });
+
   it('prefers nested metadata over legacy top-level fields', () => {
     const nestedAt = new Date('2026-02-01T00:00:00.000Z');
     expect(
