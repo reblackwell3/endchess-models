@@ -11,6 +11,7 @@ export * from './models/raw/puzzleCatalogMetaModel';
 export * from './models/raw/contentCatalogMetaModel';
 export * from './models/raw/openingBranchFenModel';
 export * from './models/raw/openingFamilyModel';
+export * from './models/raw/corpusPlayerModel';
 
 export * from './models/system/systemImportDataModel';
 export * from './models/system/promoCodeModel';

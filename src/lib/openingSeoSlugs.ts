@@ -34,3 +34,13 @@ export function openingVariationSlug(opening: string): string {
 export function explorerOpeningSlug(opening: string): string {
   return slugifyOpeningName(opening.replace(/ Variation$/i, '').trim());
 }
+
+/** URL slug for corpus player browse pages (e.g. Carlsen,M → carlsen-m). */
+export function playerBrowseSlug(username: string): string {
+  return username
+    .trim()
+    .toLowerCase()
+    .replace(/[,\s.]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
