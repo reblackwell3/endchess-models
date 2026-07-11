@@ -1,6 +1,7 @@
 import { Document, Model, model, Schema, Types } from 'mongoose';
 import type {
   CourseAlgorithm,
+  CourseMetadata,
   CoursePhase,
   CoursePreviewThumbnail,
   GamePool,
@@ -42,6 +43,8 @@ export interface ICourse extends Document {
     numGamesUsed: number;
   };
   previewThumbnails?: CoursePreviewThumbnail[];
+  /** Build-time metadata (course-builder commit, etc.). */
+  metadata?: CourseMetadata;
 }
 
 const courseSchema = new Schema<ICourse>(
@@ -79,6 +82,17 @@ const courseSchema = new Schema<ICourse>(
         },
       ],
       default: undefined,
+    },
+    metadata: {
+      generatedAt: { type: Date },
+      algorithm: { type: String },
+      filters: {
+        minElo: { type: Number },
+        maxElo: { type: Number },
+        sources: { type: [String] },
+        numGamesUsed: { type: Number },
+      },
+      builderCommitSha: { type: String },
     },
   },
   { collection: 'courses' },

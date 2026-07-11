@@ -26,8 +26,10 @@ export * from './models/course/positionEvalModel';
 export * from './models/course/courseLessonViewModel';
 
 export * from './models/explorer/explorerDocTypes';
+export * from './models/explorer/explorerIndexedGameModel';
 export * from './models/explorer/explorerPositionModel';
 export * from './models/explorer/positionOccurrenceModel';
+export * from './models/raw/explorerCatalogMetaModel';
 
 export * from './models/srs/srsDocTypes';
 export * from './models/srs/srsModels';

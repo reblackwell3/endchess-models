@@ -5,6 +5,8 @@
 export * from './analysis/moveQualityThresholds';
 export * from './analysis/classifyMoveQuality';
 export * from './lib/contentCatalogMeta';
+export * from './lib/explorerCatalogMeta';
+export * from './lib/explorerIndexedGames';
 export * from './lib/gameEnrichment';
 export * from './lib/gameIdentity';
 export * from './lib/gameReplay';
@@ -25,3 +27,4 @@ export * from './lib/deleteUserImportedGames';
 export * from './lib/userImportedGameAnalysisStatus';
 export * from './lib/importJobStatus';
 export * from './lib/courseLineMastery';
+export * from './lib/courseMetadata';
