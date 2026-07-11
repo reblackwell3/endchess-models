@@ -11,6 +11,7 @@ export * from './models/raw/puzzleCatalogMetaModel';
 export * from './models/raw/contentCatalogMetaModel';
 export * from './models/raw/openingBranchFenModel';
 export * from './models/raw/openingFamilyModel';
+export * from './models/raw/corpusPlayerModel';
 
 export * from './models/system/systemImportDataModel';
 export * from './models/system/promoCodeModel';
@@ -26,8 +27,10 @@ export * from './models/course/positionEvalModel';
 export * from './models/course/courseLessonViewModel';
 
 export * from './models/explorer/explorerDocTypes';
+export * from './models/explorer/explorerIndexedGameModel';
 export * from './models/explorer/explorerPositionModel';
 export * from './models/explorer/positionOccurrenceModel';
+export * from './models/raw/explorerCatalogMetaModel';
 
 export * from './models/srs/srsDocTypes';
 export * from './models/srs/srsModels';

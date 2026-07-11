@@ -34,6 +34,23 @@ export type CoursePreviewThumbnail = {
 /** How explorer opening repertoire lines were selected at build time. */
 export type CourseAlgorithm = 'popularity';
 
+/** Build-time metadata stamped on courses when the course-builder publishes. */
+export type CourseMetadata = {
+  /** When this course version was published. */
+  generatedAt?: Date;
+  /** Opening line selection strategy (omitted on engine-built courses). */
+  algorithm?: CourseAlgorithm;
+  filters?: {
+    minElo: number;
+    maxElo: number;
+    sources: string[];
+    /** Games pulled from the master pool when built (0 for opening explorer walks). */
+    numGamesUsed: number;
+  };
+  /** Git commit of endchess-course-builder at publish time. */
+  builderCommitSha?: string;
+};
+
 export type GamePool = 'repertoire' | 'supplemental' | 'combined';
 export type ParentOpening = 'e4' | 'caro-kann' | 'grunfeld';
 export type SectionKind = 'line-branch' | 'structure' | 'material';
