@@ -324,6 +324,25 @@ describe('longestMasteredStemDepth', () => {
     ]);
     expect(longestMasteredStemDepth(stems, [0, 1], mastery)).toBe(4);
   });
+
+  it('passes through vacuous trainSlots=0 stems without requiring mastery', () => {
+    const withVacuous = [
+      { stemKey: 'd2d4', depth: 1, trainSlots: 0 },
+      { stemKey: 'd2d4|d7d5', depth: 2, trainSlots: 1 },
+      { stemKey: 'd2d4|d7d5|c2c4|e7e6', depth: 4, trainSlots: 2 },
+    ];
+    const mastery = new Map([
+      [
+        'd2d4|d7d5',
+        { masteredSlots: [true], skipRemaining: 4, skipInterval: 4 },
+      ],
+      [
+        'd2d4|d7d5|c2c4|e7e6',
+        { masteredSlots: [true, true], skipRemaining: 4, skipInterval: 4 },
+      ],
+    ]);
+    expect(longestMasteredStemDepth(withVacuous, [0, 1, 2], mastery)).toBe(4);
+  });
 });
 
 describe('nextStemMasterySkipState', () => {

@@ -62,4 +62,6 @@ export type CourseStem = {
   depth: number;
   endFen: string;
   trainSlots: number;
+  /** Elite-DB game count at this prefix (opening popularity walks only). */
+  N?: number;
 };

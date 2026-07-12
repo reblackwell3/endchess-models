@@ -93,6 +93,7 @@ const courseSchema = new Schema<ICourse>(
           depth: { type: Number, required: true },
           endFen: { type: String, required: true },
           trainSlots: { type: Number, required: true },
+          N: { type: Number },
         },
       ],
       default: undefined,
@@ -181,6 +182,11 @@ export interface ILesson extends Document {
    * Absent on engine-built / middlegame / endgame lessons.
    */
   N?: number;
+  /**
+   * Elite-DB game count after each ply (index = ply - 1); opening popularity
+   * only. Lets consumers recompute N when the line is truncated.
+   */
+  NPerPly?: number[];
   /** Indexes into {@link ICourse.stems} for prefixes this line traverses. */
   stemIds?: number[];
   /** Eval (cp, user perspective) before the mistake move. */
@@ -240,6 +246,7 @@ const lessonSchema = new Schema<ILesson>(
     },
     materialSignature: { type: String },
     N: { type: Number },
+    NPerPly: { type: [Number], default: undefined },
     stemIds: { type: [Number], default: undefined },
     setupEvalCp: { type: Number },
     mistakeUci: { type: String },

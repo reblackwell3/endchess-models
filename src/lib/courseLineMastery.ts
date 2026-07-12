@@ -288,6 +288,12 @@ export function longestMasteredStemDepth(
     if (!stem) {
       break;
     }
+    // White-only (or otherwise empty) prefixes have nothing to train for this
+    // side — treat them as transparent so they don't block deeper mastered stems.
+    if (stem.trainSlots <= 0) {
+      depth = stem.depth;
+      continue;
+    }
     const mastery = stemMasteryByKey.get(stem.stemKey);
     if (!stemMasteryComplete(stem.trainSlots, mastery?.masteredSlots)) {
       break;

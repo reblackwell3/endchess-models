@@ -6,6 +6,8 @@ export type LessonStemInput = {
   movesUci: readonly string[];
   trainSide: TrainSide;
   startFen?: string;
+  /** Elite-DB game count after each ply (index = ply - 1); opening popularity only. */
+  NPerPly?: readonly number[];
 };
 
 export type ExtractedCourseStems = {
@@ -143,6 +145,7 @@ export function extractCourseStems(
   const stems: CourseStem[] = sorted.map((node) => {
     const representativeLesson = lessons[[...node.lessonIndexes][0]!]!;
     const lessonStartFen = representativeLesson.startFen ?? startFen;
+    const stemN = representativeLesson.NPerPly?.[node.depth - 1];
     return {
       stemKey: stemKeyFromPath(node.path),
       depth: node.depth,
@@ -153,6 +156,7 @@ export function extractCourseStems(
         representativeLesson.trainSide,
         node.depth,
       ),
+      ...(stemN !== undefined ? { N: stemN } : {}),
     };
   });
 
