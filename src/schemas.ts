@@ -25,6 +25,7 @@ export * from './models/course/courseModel';
 export * from './models/course/mistakeLessonExclusionModel';
 export * from './models/course/positionEvalModel';
 export * from './models/course/courseLessonViewModel';
+export * from './models/course/userStemMasteryModel';
 
 export * from './models/explorer/explorerDocTypes';
 export * from './models/explorer/explorerIndexedGameModel';

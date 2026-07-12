@@ -31,3 +31,4 @@ export * from './lib/userImportedGameAnalysisStatus';
 export * from './lib/importJobStatus';
 export * from './lib/courseLineMastery';
 export * from './lib/courseMetadata';
+export * from './lib/extractCourseStems';

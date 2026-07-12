@@ -17,6 +17,7 @@ const courseLineMasteryStateSchema = new Schema<CourseLineMasteryState>(
   {
     masteredSlots: { type: [Boolean], required: true, default: [] },
     skipRemaining: { type: Number, required: true, default: 0 },
+    skipInterval: { type: Number, default: undefined },
     slotRepetitionsRemaining: { type: [Number], default: undefined },
     recoveryTrainSlot: { type: Number, default: undefined },
   },

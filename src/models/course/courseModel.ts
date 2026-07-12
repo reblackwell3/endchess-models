@@ -4,6 +4,7 @@ import type {
   CourseMetadata,
   CoursePhase,
   CoursePreviewThumbnail,
+  CourseStem,
   GamePool,
   LessonTrainPosition,
   LessonType,
@@ -43,6 +44,8 @@ export interface ICourse extends Document {
     numGamesUsed: number;
   };
   previewThumbnails?: CoursePreviewThumbnail[];
+  /** Numbered stem catalog; array index is stem id. */
+  stems?: CourseStem[];
   /** Build-time metadata (course-builder commit, etc.). */
   metadata?: CourseMetadata;
 }
@@ -79,6 +82,17 @@ const courseSchema = new Schema<ICourse>(
         {
           pgn: { type: String, required: true },
           startFen: { type: String },
+        },
+      ],
+      default: undefined,
+    },
+    stems: {
+      type: [
+        {
+          stemKey: { type: String, required: true },
+          depth: { type: Number, required: true },
+          endFen: { type: String, required: true },
+          trainSlots: { type: Number, required: true },
         },
       ],
       default: undefined,
@@ -167,6 +181,8 @@ export interface ILesson extends Document {
    * Absent on engine-built / middlegame / endgame lessons.
    */
   N?: number;
+  /** Indexes into {@link ICourse.stems} for prefixes this line traverses. */
+  stemIds?: number[];
   /** Eval (cp, user perspective) before the mistake move. */
   setupEvalCp?: number;
   mistakeUci?: string;
@@ -224,6 +240,7 @@ const lessonSchema = new Schema<ILesson>(
     },
     materialSignature: { type: String },
     N: { type: Number },
+    stemIds: { type: [Number], default: undefined },
     setupEvalCp: { type: Number },
     mistakeUci: { type: String },
     mistakeSan: { type: String },
