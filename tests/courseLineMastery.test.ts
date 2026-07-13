@@ -4,6 +4,7 @@ import {
   defaultLineMastery,
   longestMasteredStemDepth,
   MASTERED_SKIP_COUNT,
+  mergeStemPrefixSlots,
   nextStemMasterySkipState,
   updateLineMastery,
   type CourseLineMasteryState,
@@ -342,6 +343,34 @@ describe('longestMasteredStemDepth', () => {
       ],
     ]);
     expect(longestMasteredStemDepth(withVacuous, [0, 1, 2], mastery)).toBe(4);
+  });
+});
+
+describe('mergeStemPrefixSlots', () => {
+  const trainIndices = [1, 3, 5, 7];
+
+  it('preserves existing mastery for undrilled stem-skip slots', () => {
+    expect(
+      mergeStemPrefixSlots({
+        trainSlots: 3,
+        lineMasteredSlots: [false, false, false, true],
+        existingMasteredSlots: [true, true, true],
+        drilledMoveIndices: new Set([7]),
+        trainIndices,
+      }),
+    ).toEqual([true, true, true]);
+  });
+
+  it('records an explicit miss on a drilled stem slot', () => {
+    expect(
+      mergeStemPrefixSlots({
+        trainSlots: 3,
+        lineMasteredSlots: [true, false, true],
+        existingMasteredSlots: [true, true, true],
+        drilledMoveIndices: new Set([1, 3, 5]),
+        trainIndices,
+      }),
+    ).toEqual([true, false, true]);
   });
 });
 

@@ -222,6 +222,42 @@ export function stemMasteryComplete(
   return masteredSlots.slice(0, stemTrainSlots).every(Boolean);
 }
 
+/**
+ * Build the stem prefix slot vector for sync after a drill.
+ *
+ * Slots that were not quizzed this run (e.g. jumped past via stemSkipDepth) keep
+ * any prior stem mastery — otherwise skipped prefixes look like misses and wipe
+ * shared stem skip state.
+ */
+export function mergeStemPrefixSlots(args: {
+  trainSlots: number;
+  lineMasteredSlots: readonly boolean[];
+  existingMasteredSlots: readonly boolean[] | undefined;
+  drilledMoveIndices: ReadonlySet<number>;
+  trainIndices: readonly number[];
+}): boolean[] {
+  const {
+    trainSlots,
+    lineMasteredSlots,
+    existingMasteredSlots,
+    drilledMoveIndices,
+    trainIndices,
+  } = args;
+  const merged: boolean[] = [];
+  for (let slot = 0; slot < trainSlots; slot += 1) {
+    const moveIndex = trainIndices[slot];
+    const lineVal = lineMasteredSlots[slot] === true;
+    const drilled =
+      moveIndex !== undefined && drilledMoveIndices.has(moveIndex);
+    if (drilled) {
+      merged.push(lineVal);
+    } else {
+      merged.push(lineVal || existingMasteredSlots?.[slot] === true);
+    }
+  }
+  return merged;
+}
+
 /** Next persisted stem skip state after a drill that touches this stem. */
 export function nextStemMasterySkipState(args: {
   prefixMastered: boolean;
