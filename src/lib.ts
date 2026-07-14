@@ -4,6 +4,7 @@
  */
 export * from './analysis/moveQualityThresholds';
 export * from './analysis/classifyMoveQuality';
+export * from './analysis/lichessToChesscomRating';
 export * from './lib/contentCatalogMeta';
 export * from './lib/explorerCatalogMeta';
 export * from './lib/explorerIndexedGames';

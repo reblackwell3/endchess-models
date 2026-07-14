@@ -6,9 +6,9 @@ export type MoveQuality =
   | 'blunder';
 
 export const EPL_BEST_MAX = 0.01;
-export const EPL_STRONG_MAX = 0.06;
-export const EPL_INACCURACY_MAX = 0.12;
-export const EPL_MISTAKE_MAX = 0.22;
+export const EPL_STRONG_MAX = 0.05;
+export const EPL_INACCURACY_MAX = 0.11;
+export const EPL_MISTAKE_MAX = 0.21;
 
 export const DEEP_UPGRADE_QUALITIES: MoveQuality[] = [
   'inaccuracy',
