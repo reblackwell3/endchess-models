@@ -26,6 +26,7 @@ export * from './lib/openingCatalog';
 export * from './lib/playerNameUtils';
 export * from './lib/playerCatalog';
 export * from './lib/corpusPlayerCatalog';
+export * from './lib/openingLineCoverage';
 export * from './lib/planUserImportedGameSync';
 export * from './lib/deleteUserImportedGames';
 export * from './lib/userImportedGameAnalysisStatus';

@@ -31,8 +31,28 @@ export function openingVariationSlug(opening: string): string {
   return slugifyOpeningName(openingVariationSuffix(opening));
 }
 
+/** Explorer SEO slug — preserves trailing "Variation" in the name. */
 export function explorerOpeningSlug(opening: string): string {
+  return slugifyOpeningName(opening.trim());
+}
+
+/**
+ * Prior explorer SEO slug that stripped trailing " Variation".
+ * Kept for resolving older indexed / bookmarked URLs.
+ */
+export function legacyExplorerOpeningSlug(opening: string): string {
   return slugifyOpeningName(opening.replace(/ Variation$/i, '').trim());
+}
+
+export function matchesExplorerOpeningSlug(
+  opening: string,
+  slug: string,
+): boolean {
+  const normalizedSlug = slug.trim().toLowerCase();
+  return (
+    explorerOpeningSlug(opening) === normalizedSlug ||
+    legacyExplorerOpeningSlug(opening) === normalizedSlug
+  );
 }
 
 /** URL slug for corpus player browse pages (e.g. Carlsen,M → carlsen-m). */
