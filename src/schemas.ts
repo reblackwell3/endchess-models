@@ -28,6 +28,8 @@ export * from './models/course/positionEvalModel';
 export * from './models/course/courseLessonViewModel';
 export * from './models/course/userStemMasteryModel';
 
+export * from './models/engine/engineCacheModels';
+
 export * from './models/explorer/explorerDocTypes';
 export * from './models/explorer/explorerIndexedGameModel';
 export * from './models/explorer/explorerPositionModel';

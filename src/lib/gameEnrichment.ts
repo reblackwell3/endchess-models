@@ -15,6 +15,10 @@ export interface EnrichedGame {
   result: string;
   eco?: string;
   opening?: string;
+  /** Canonical opening family id from opening_families. */
+  openingFamilyId?: number;
+  /** Canonical lichess opening line id from opening_branch_fens. */
+  openingLineId?: number;
   termination?: string;
   end_time: number;
   played_at?: Date;
