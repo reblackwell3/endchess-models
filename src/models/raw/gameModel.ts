@@ -64,6 +64,8 @@ export interface IGame extends Document {
   analysisRequestedAt?: Date;
   /** When daily cap is hit, analyze is deferred to the next quota window. */
   analysisScheduledFor?: Date;
+  /** Set after the client has shown the analysis-ready toast for this game. */
+  analysisNotified?: boolean;
 }
 
 const playerSchema = new Schema<IGamePlayer>(
@@ -124,6 +126,7 @@ const gameSchema = new Schema<IGame>(
     moves: { type: [moveSchema], default: [] },
     analysisRequestedAt: { type: Date },
     analysisScheduledFor: { type: Date },
+    analysisNotified: { type: Boolean },
   },
   { timestamps: true },
 );
