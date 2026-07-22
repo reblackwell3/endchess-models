@@ -6,6 +6,8 @@ export interface UserSettingsDoc extends Document {
   addMissedPositionsToSrs: boolean;
   autoShowReplayWrongMoves?: boolean;
   autoShowTopReplayGame?: boolean;
+  /** Re-run an import from the last saved username when My Games loads. */
+  autoTopUpImports?: boolean;
   boardTheme?: string;
   replayAutoplaySpeed?: 'fast' | 'normal' | 'slow';
   /** Consecutive successful line reviews before a mastered prefix is skipped. */
@@ -35,6 +37,7 @@ const userSettingsSchema = new Schema<UserSettingsDoc>(
     addMissedPositionsToSrs: { type: Boolean, default: true },
     autoShowReplayWrongMoves: { type: Boolean, default: true },
     autoShowTopReplayGame: { type: Boolean, default: true },
+    autoTopUpImports: { type: Boolean, default: false },
     boardTheme: { type: String, default: 'classic' },
     replayAutoplaySpeed: { type: String, default: 'fast' },
     courseSrsRepetitions: { type: Number, default: 2, min: 1, max: 3 },
