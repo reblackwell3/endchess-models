@@ -1,9 +1,6 @@
 import {
-  EPL_BEST_MAX,
-  EPL_INACCURACY_MAX,
-  EPL_MISTAKE_MAX,
-  EPL_STRONG_MAX,
   type MoveQuality,
+  type MoveQualityThresholds,
 } from './moveQualityThresholds';
 
 /** Lichess-style win% from centipawns (0–100 scale). */
@@ -16,13 +13,20 @@ export function cpToExpectedPoints(cp: number): number {
   return cpToWinPercent(cp) / 100;
 }
 
-export function classifyMoveQualityFromEpl(
-  expectedPointsLost: number,
-): MoveQuality {
-  if (expectedPointsLost <= EPL_BEST_MAX) return 'best';
-  if (expectedPointsLost <= EPL_STRONG_MAX) return 'strong';
-  if (expectedPointsLost <= EPL_INACCURACY_MAX) return 'inaccuracy';
-  if (expectedPointsLost <= EPL_MISTAKE_MAX) return 'mistake';
+/**
+ * 'best' is semantic (the engine's actual top move); every other label comes
+ * from rating-banded EPL cutoffs (see `getMoveQualityThresholds`).
+ */
+export function classifyMoveQuality(params: {
+  expectedPointsLost: number;
+  isTopMove: boolean;
+  thresholds: MoveQualityThresholds;
+}): MoveQuality {
+  const { expectedPointsLost, isTopMove, thresholds } = params;
+  if (isTopMove) return 'best';
+  if (expectedPointsLost <= thresholds.strongMax) return 'strong';
+  if (expectedPointsLost <= thresholds.inaccuracyMax) return 'inaccuracy';
+  if (expectedPointsLost <= thresholds.mistakeMax) return 'mistake';
   // TODO(prod): optionally require decisive-loss signal before blunder.
   return 'blunder';
 }

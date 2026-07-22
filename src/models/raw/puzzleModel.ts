@@ -32,8 +32,8 @@ const puzzleSchema = new Schema<IPuzzleDocument>({
   OpeningTags: { type: String, required: true },
 });
 
-// Backs the rating-range $match in the puzzle fetch (puzzleRepo.findRandomPuzzle).
-puzzleSchema.index({ Rating: 1 });
+// Backs deterministic, paginated random-rating pivot seeks in puzzleRepo.
+puzzleSchema.index({ Rating: 1, _id: 1 });
 
 export const Puzzle: Model<IPuzzleDocument> = mongoose.model<IPuzzleDocument>(
   'Puzzle',
