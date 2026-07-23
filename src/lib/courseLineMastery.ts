@@ -204,31 +204,76 @@ export function computeDrillPlan(
 }
 
 export type StemMasterySkipState = {
-  masteredSlots: boolean[];
+  /** Train-side UCIs mastered for this position (transposition-friendly). */
+  masteredUcis: string[];
   skipRemaining?: number;
   skipInterval?: number;
 };
 
 export function stemMasteryComplete(
-  stemTrainSlots: number,
-  masteredSlots: readonly boolean[] | undefined,
+  requiredUcis: readonly string[],
+  masteredUcis: readonly string[] | undefined,
 ): boolean {
-  if (!masteredSlots || stemTrainSlots <= 0) {
+  if (!masteredUcis || requiredUcis.length === 0) {
     return false;
   }
-  if (masteredSlots.length < stemTrainSlots) {
-    return false;
-  }
-  return masteredSlots.slice(0, stemTrainSlots).every(Boolean);
+  const mastered = new Set(masteredUcis);
+  return requiredUcis.every((uci) => mastered.has(uci));
 }
 
 /**
- * Build the stem prefix slot vector for sync after a drill.
+ * Build the stem prefix mastered-UCI set for sync after a drill.
  *
- * Slots that were not quizzed this run (e.g. jumped past via stemSkipDepth) keep
- * any prior stem mastery — otherwise skipped prefixes look like misses and wipe
- * shared stem skip state.
+ * Starts from existing mastery so UCIs earned on an alternate transposition path
+ * are preserved. Only UCIs present on the current lesson path are added or
+ * removed. Slots not quizzed this run (e.g. jumped past via stemSkipDepth) keep
+ * prior mastery for that UCI.
  */
+export function mergeStemPrefixUcis(args: {
+  trainSlots: number;
+  lineMasteredSlots: readonly boolean[];
+  existingMasteredUcis: readonly string[] | undefined;
+  drilledMoveIndices: ReadonlySet<number>;
+  trainIndices: readonly number[];
+  movesUci: readonly string[];
+}): string[] {
+  const {
+    trainSlots,
+    lineMasteredSlots,
+    existingMasteredUcis,
+    drilledMoveIndices,
+    trainIndices,
+    movesUci,
+  } = args;
+  const merged = new Set(existingMasteredUcis ?? []);
+
+  for (let slot = 0; slot < trainSlots; slot += 1) {
+    const moveIndex = trainIndices[slot];
+    if (moveIndex === undefined) {
+      continue;
+    }
+    const uci = movesUci[moveIndex];
+    if (!uci) {
+      continue;
+    }
+    const lineVal = lineMasteredSlots[slot] === true;
+    const drilled = drilledMoveIndices.has(moveIndex);
+    if (drilled) {
+      if (lineVal) {
+        merged.add(uci);
+      } else {
+        // Explicit miss on this path's UCI.
+        merged.delete(uci);
+      }
+    } else if (lineVal) {
+      merged.add(uci);
+    }
+  }
+
+  return [...merged];
+}
+
+/** @deprecated Prefer {@link mergeStemPrefixUcis}. */
 export function mergeStemPrefixSlots(args: {
   trainSlots: number;
   lineMasteredSlots: readonly boolean[];
@@ -261,29 +306,25 @@ export function mergeStemPrefixSlots(args: {
 /** Next persisted stem skip state after a drill that touches this stem. */
 export function nextStemMasterySkipState(args: {
   prefixMastered: boolean;
-  prefixSlots: readonly boolean[];
+  masteredUcis: readonly string[];
   existing: StemMasterySkipState | undefined;
-  trainSlots: number;
+  requiredUcis: readonly string[];
 }): StemMasterySkipState | null {
-  const {
-    prefixMastered,
-    prefixSlots,
-    existing,
-    trainSlots,
-  } = args;
-  const wasComplete = stemMasteryComplete(trainSlots, existing?.masteredSlots);
+  const { prefixMastered, masteredUcis, existing, requiredUcis } = args;
+  const wasComplete = stemMasteryComplete(requiredUcis, existing?.masteredUcis);
   const priorSkipRemaining = existing?.skipRemaining ?? 0;
   const priorSkipInterval = Math.max(
     MASTERED_SKIP_COUNT,
     existing?.skipInterval ?? MASTERED_SKIP_COUNT,
   );
+  const nextUcis = [...masteredUcis];
 
   if (!prefixMastered) {
     if (!existing) {
       return null;
     }
     return {
-      masteredSlots: [...prefixSlots],
+      masteredUcis: nextUcis,
       skipRemaining: 0,
       skipInterval: MASTERED_SKIP_COUNT,
     };
@@ -291,7 +332,7 @@ export function nextStemMasterySkipState(args: {
 
   if (!wasComplete) {
     return {
-      masteredSlots: [...prefixSlots],
+      masteredUcis: nextUcis,
       skipRemaining: MASTERED_SKIP_COUNT,
       skipInterval: MASTERED_SKIP_COUNT,
     };
@@ -299,7 +340,7 @@ export function nextStemMasterySkipState(args: {
 
   if (priorSkipRemaining > 0) {
     return {
-      masteredSlots: [...prefixSlots],
+      masteredUcis: nextUcis,
       skipRemaining: Math.max(0, priorSkipRemaining - 1),
       skipInterval: priorSkipInterval,
     };
@@ -307,15 +348,22 @@ export function nextStemMasterySkipState(args: {
 
   const nextInterval = priorSkipInterval * 2;
   return {
-    masteredSlots: [...prefixSlots],
+    masteredUcis: nextUcis,
     skipRemaining: nextInterval,
     skipInterval: nextInterval,
   };
 }
 
 export function longestMasteredStemDepth(
-  stems: readonly { depth: number; trainSlots: number; stemKey: string }[],
+  stems: readonly {
+    depth: number;
+    trainSlots: number;
+    endKey?: string;
+    stemKey: string;
+    trainUcis?: readonly string[];
+  }[],
   stemIds: readonly number[],
+  /** Mastery keyed by endKey (preferred) or stemKey (legacy). */
   stemMasteryByKey: ReadonlyMap<string, StemMasterySkipState>,
 ): number {
   let depth = 0;
@@ -330,8 +378,12 @@ export function longestMasteredStemDepth(
       depth = stem.depth;
       continue;
     }
-    const mastery = stemMasteryByKey.get(stem.stemKey);
-    if (!stemMasteryComplete(stem.trainSlots, mastery?.masteredSlots)) {
+    const lookupKey = stem.endKey ?? stem.stemKey;
+    const mastery = stemMasteryByKey.get(lookupKey);
+    const requiredUcis =
+      stem.trainUcis ??
+      Array.from({ length: stem.trainSlots }, (_, index) => `slot:${index}`);
+    if (!stemMasteryComplete(requiredUcis, mastery?.masteredUcis)) {
       break;
     }
     if ((mastery?.skipRemaining ?? 0) <= 0) {
