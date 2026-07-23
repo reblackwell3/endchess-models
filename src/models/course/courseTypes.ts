@@ -61,7 +61,11 @@ export type CourseStem = {
   stemKey: string;
   depth: number;
   endFen: string;
+  /** positionKey(endFen) — shared across transposed move orders. */
+  endKey: string;
   trainSlots: number;
+  /** Train-side UCIs along this path prefix (mastery identity for the stem). */
+  trainUcis: string[];
   /** Elite-DB game count at this prefix (opening popularity walks only). */
   N?: number;
 };

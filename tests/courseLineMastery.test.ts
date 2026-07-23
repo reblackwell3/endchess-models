@@ -5,6 +5,7 @@ import {
   longestMasteredStemDepth,
   MASTERED_SKIP_COUNT,
   mergeStemPrefixSlots,
+  mergeStemPrefixUcis,
   nextStemMasterySkipState,
   updateLineMastery,
   type CourseLineMasteryState,
@@ -294,19 +295,31 @@ describe('contiguousMasteredCount', () => {
 
 describe('longestMasteredStemDepth', () => {
   const stems = [
-    { stemKey: 'a', depth: 2, trainSlots: 1 },
-    { stemKey: 'a|b', depth: 4, trainSlots: 2 },
+    {
+      stemKey: 'a',
+      endKey: 'end-a',
+      depth: 2,
+      trainSlots: 1,
+      trainUcis: ['a'],
+    },
+    {
+      stemKey: 'a|b',
+      endKey: 'end-ab',
+      depth: 4,
+      trainSlots: 2,
+      trainUcis: ['a', 'b'],
+    },
   ];
 
   it('stops at stems due for revalidation (skipRemaining 0)', () => {
     const mastery = new Map([
       [
-        'a',
-        { masteredSlots: [true], skipRemaining: 1, skipInterval: 2 },
+        'end-a',
+        { masteredUcis: ['a'], skipRemaining: 1, skipInterval: 2 },
       ],
       [
-        'a|b',
-        { masteredSlots: [true, true], skipRemaining: 0, skipInterval: 2 },
+        'end-ab',
+        { masteredUcis: ['a', 'b'], skipRemaining: 0, skipInterval: 2 },
       ],
     ]);
     expect(longestMasteredStemDepth(stems, [0, 1], mastery)).toBe(2);
@@ -315,12 +328,12 @@ describe('longestMasteredStemDepth', () => {
   it('includes stems with active skipRemaining', () => {
     const mastery = new Map([
       [
-        'a',
-        { masteredSlots: [true], skipRemaining: 1, skipInterval: 2 },
+        'end-a',
+        { masteredUcis: ['a'], skipRemaining: 1, skipInterval: 2 },
       ],
       [
-        'a|b',
-        { masteredSlots: [true, true], skipRemaining: 2, skipInterval: 2 },
+        'end-ab',
+        { masteredUcis: ['a', 'b'], skipRemaining: 2, skipInterval: 2 },
       ],
     ]);
     expect(longestMasteredStemDepth(stems, [0, 1], mastery)).toBe(4);
@@ -328,21 +341,113 @@ describe('longestMasteredStemDepth', () => {
 
   it('passes through vacuous trainSlots=0 stems without requiring mastery', () => {
     const withVacuous = [
-      { stemKey: 'd2d4', depth: 1, trainSlots: 0 },
-      { stemKey: 'd2d4|d7d5', depth: 2, trainSlots: 1 },
-      { stemKey: 'd2d4|d7d5|c2c4|e7e6', depth: 4, trainSlots: 2 },
+      {
+        stemKey: 'd2d4',
+        endKey: 'end-d4',
+        depth: 1,
+        trainSlots: 0,
+        trainUcis: [] as string[],
+      },
+      {
+        stemKey: 'd2d4|d7d5',
+        endKey: 'end-d4d5',
+        depth: 2,
+        trainSlots: 1,
+        trainUcis: ['d2d4'],
+      },
+      {
+        stemKey: 'd2d4|d7d5|c2c4|e7e6',
+        endKey: 'end-qg',
+        depth: 4,
+        trainSlots: 2,
+        trainUcis: ['d2d4', 'c2c4'],
+      },
     ];
     const mastery = new Map([
       [
-        'd2d4|d7d5',
-        { masteredSlots: [true], skipRemaining: 4, skipInterval: 4 },
+        'end-d4d5',
+        { masteredUcis: ['d2d4'], skipRemaining: 4, skipInterval: 4 },
       ],
       [
-        'd2d4|d7d5|c2c4|e7e6',
-        { masteredSlots: [true, true], skipRemaining: 4, skipInterval: 4 },
+        'end-qg',
+        {
+          masteredUcis: ['d2d4', 'c2c4'],
+          skipRemaining: 4,
+          skipInterval: 4,
+        },
       ],
     ]);
     expect(longestMasteredStemDepth(withVacuous, [0, 1, 2], mastery)).toBe(4);
+  });
+
+  it('credits transposed stems that share endKey', () => {
+    const transposed = [
+      {
+        stemKey: 'd2d4|e7e6|c2c4|g8f6',
+        endKey: 'shared',
+        depth: 4,
+        trainSlots: 2,
+        trainUcis: ['d2d4', 'c2c4'],
+      },
+    ];
+    const mastery = new Map([
+      [
+        'shared',
+        {
+          masteredUcis: ['d2d4', 'c2c4'],
+          skipRemaining: 2,
+          skipInterval: 2,
+        },
+      ],
+    ]);
+    expect(longestMasteredStemDepth(transposed, [0], mastery)).toBe(4);
+  });
+});
+
+describe('mergeStemPrefixUcis', () => {
+  const trainIndices = [0, 2, 4, 6];
+  const movesUci = ['d2d4', 'e7e6', 'c2c4', 'g8f6', 'g1f3', 'b8c6', 'b1c3'];
+
+  it('preserves existing mastery for undrilled stem-skip slots', () => {
+    expect(
+      mergeStemPrefixUcis({
+        trainSlots: 3,
+        lineMasteredSlots: [false, false, false, true],
+        existingMasteredUcis: ['d2d4', 'c2c4', 'g1f3'],
+        drilledMoveIndices: new Set([6]),
+        trainIndices,
+        movesUci,
+      }),
+    ).toEqual(['d2d4', 'c2c4', 'g1f3']);
+  });
+
+  it('records an explicit miss on a drilled stem slot', () => {
+    expect(
+      mergeStemPrefixUcis({
+        trainSlots: 3,
+        lineMasteredSlots: [true, false, true],
+        existingMasteredUcis: ['d2d4', 'c2c4', 'g1f3'],
+        drilledMoveIndices: new Set([0, 2, 4]),
+        trainIndices,
+        movesUci,
+      }),
+    ).toEqual(['d2d4', 'g1f3']);
+  });
+
+  it('preserves mastered UCIs from an alternate transposition path', () => {
+    // Path A previously mastered d2d4 + g1f3; path B drills c2c4 instead.
+    const pathBMoves = ['c2c4', 'e7e6', 'g1f3', 'g8f6', 'd2d4', 'b8c6', 'b1c3'];
+    const pathBTrainIndices = [0, 2, 4, 6];
+    expect(
+      mergeStemPrefixUcis({
+        trainSlots: 2,
+        lineMasteredSlots: [true, true, false, false],
+        existingMasteredUcis: ['d2d4', 'g1f3'],
+        drilledMoveIndices: new Set([0, 2]),
+        trainIndices: pathBTrainIndices,
+        movesUci: pathBMoves,
+      }).sort(),
+    ).toEqual(['c2c4', 'd2d4', 'g1f3'].sort());
   });
 });
 
@@ -375,18 +480,18 @@ describe('mergeStemPrefixSlots', () => {
 });
 
 describe('nextStemMasterySkipState', () => {
-  const slots = [true, true];
+  const ucis = ['d2d4', 'c2c4'];
 
   it('arms 2 on first mastery', () => {
     expect(
       nextStemMasterySkipState({
         prefixMastered: true,
-        prefixSlots: slots,
+        masteredUcis: ucis,
         existing: undefined,
-        trainSlots: 2,
+        requiredUcis: ucis,
       }),
     ).toEqual({
-      masteredSlots: slots,
+      masteredUcis: ucis,
       skipRemaining: 2,
       skipInterval: 2,
     });
@@ -396,16 +501,16 @@ describe('nextStemMasterySkipState', () => {
     expect(
       nextStemMasterySkipState({
         prefixMastered: true,
-        prefixSlots: slots,
+        masteredUcis: ucis,
         existing: {
-          masteredSlots: slots,
+          masteredUcis: ucis,
           skipRemaining: 2,
           skipInterval: 2,
         },
-        trainSlots: 2,
+        requiredUcis: ucis,
       }),
     ).toEqual({
-      masteredSlots: slots,
+      masteredUcis: ucis,
       skipRemaining: 1,
       skipInterval: 2,
     });
@@ -415,16 +520,16 @@ describe('nextStemMasterySkipState', () => {
     expect(
       nextStemMasterySkipState({
         prefixMastered: true,
-        prefixSlots: slots,
+        masteredUcis: ucis,
         existing: {
-          masteredSlots: slots,
+          masteredUcis: ucis,
           skipRemaining: 0,
           skipInterval: 2,
         },
-        trainSlots: 2,
+        requiredUcis: ucis,
       }),
     ).toEqual({
-      masteredSlots: slots,
+      masteredUcis: ucis,
       skipRemaining: 4,
       skipInterval: 4,
     });
@@ -434,16 +539,16 @@ describe('nextStemMasterySkipState', () => {
     expect(
       nextStemMasterySkipState({
         prefixMastered: false,
-        prefixSlots: [true, false],
+        masteredUcis: ['d2d4'],
         existing: {
-          masteredSlots: slots,
+          masteredUcis: ucis,
           skipRemaining: 3,
           skipInterval: 4,
         },
-        trainSlots: 2,
+        requiredUcis: ucis,
       }),
     ).toEqual({
-      masteredSlots: [true, false],
+      masteredUcis: ['d2d4'],
       skipRemaining: 0,
       skipInterval: 2,
     });
