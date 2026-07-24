@@ -1,6 +1,7 @@
 import {
   computeDrillPlan,
   contiguousMasteredCount,
+  creditStemSkipToLineMastery,
   defaultLineMastery,
   longestMasteredStemDepth,
   MASTERED_SKIP_COUNT,
@@ -290,6 +291,95 @@ describe('courseLineMastery recovery', () => {
 describe('contiguousMasteredCount', () => {
   it('counts only the prefix without holes', () => {
     expect(contiguousMasteredCount([true, true, false, true])).toBe(2);
+  });
+});
+
+describe('creditStemSkipToLineMastery', () => {
+  it('credits fresh false slots below stemSkipDepth and arms skip', () => {
+    const trainIndices = [0, 2, 4, 6, 8];
+    const credited = creditStemSkipToLineMastery(
+      trainIndices,
+      defaultLineMastery(5),
+      6,
+    );
+    expect(credited.masteredSlots).toEqual([true, true, true, false, false]);
+    expect(credited.skipRemaining).toBe(MASTERED_SKIP_COUNT);
+    expect(credited.skipInterval).toBe(MASTERED_SKIP_COUNT);
+  });
+
+  it('does not credit demoted slots with pending repetitions', () => {
+    const trainIndices = [0, 2, 4, 6];
+    const credited = creditStemSkipToLineMastery(
+      trainIndices,
+      {
+        masteredSlots: [false, true, true, true],
+        skipRemaining: 0,
+        skipInterval: 4,
+        slotRepetitionsRemaining: [2, 0, 0, 0],
+      },
+      8,
+    );
+    expect(credited.masteredSlots[0]).toBe(false);
+    expect(credited.slotRepetitionsRemaining?.[0]).toBe(2);
+    expect(credited.skipRemaining).toBe(0);
+  });
+
+  it('does not overwrite the recovery train slot', () => {
+    const trainIndices = [0, 2, 4];
+    const credited = creditStemSkipToLineMastery(
+      trainIndices,
+      {
+        masteredSlots: [false, true, true],
+        skipRemaining: 0,
+        recoveryTrainSlot: 0,
+      },
+      4,
+    );
+    expect(credited.masteredSlots[0]).toBe(false);
+    expect(credited.recoveryTrainSlot).toBe(0);
+  });
+});
+
+describe('computeDrillPlan stem skip with line holes', () => {
+  it('keeps a demoted slot below stemSkipDepth in the drill list', () => {
+    const trainIndices = [0, 2, 4, 6, 8];
+    const plan = computeDrillPlan(
+      trainIndices,
+      {
+        masteredSlots: [false, true, true, true, false],
+        skipRemaining: 2,
+        skipInterval: 2,
+        slotRepetitionsRemaining: [2, 0, 0, 0, 0],
+      },
+      { stemSkipDepth: 6 },
+    );
+    expect(plan.drillAtIndices).toEqual([0, 8]);
+    expect(plan.startMoveIndex).toBe(0);
+  });
+
+  it('after crediting, skips stem-covered slots on a fresh line', () => {
+    const trainIndices = [1, 3, 5, 7, 9];
+    const credited = creditStemSkipToLineMastery(
+      trainIndices,
+      defaultLineMastery(5),
+      6,
+    );
+    const plan = computeDrillPlan(trainIndices, credited, {
+      stemSkipDepth: 6,
+    });
+    expect(credited.masteredSlots).toEqual([true, true, true, false, false]);
+    expect(plan.drillAtIndices).toEqual([7, 9]);
+    expect(plan.startMoveIndex).toBe(7);
+  });
+
+  it('quizzes false holes and jumps mastered middle without stem credit', () => {
+    const trainIndices = [0, 2, 4, 6, 8];
+    const plan = computeDrillPlan(trainIndices, {
+      masteredSlots: [false, true, true, true, false],
+      skipRemaining: 0,
+    });
+    expect(plan.drillAtIndices).toEqual([0, 8]);
+    expect(plan.startMoveIndex).toBe(0);
   });
 });
 

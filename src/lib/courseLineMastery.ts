@@ -127,6 +127,76 @@ function moveIndexToSlot(
   return slot >= 0 ? slot : undefined;
 }
 
+function toLineMasteryResult(
+  state: Required<Pick<CourseLineMasteryState, 'masteredSlots' | 'slotRepetitionsRemaining'>> &
+    CourseLineMasteryState,
+  skipRemaining: number,
+  skipInterval: number,
+): CourseLineMasteryState {
+  return {
+    masteredSlots: state.masteredSlots,
+    skipRemaining,
+    skipInterval,
+    slotRepetitionsRemaining: state.slotRepetitionsRemaining.some((value) => value > 0)
+      ? state.slotRepetitionsRemaining
+      : undefined,
+    recoveryTrainSlot: state.recoveryTrainSlot,
+  };
+}
+
+/**
+ * Mark fresh (non-recovery) line slots covered by an armed stem skip as mastered.
+ * Demoted slots with pending repetitions are left alone so they stay quiz-worthy.
+ */
+export function creditStemSkipToLineMastery(
+  trainIndices: readonly number[],
+  mastery: CourseLineMasteryState,
+  stemSkipDepth: number,
+): CourseLineMasteryState {
+  const depth = Math.max(0, stemSkipDepth);
+  const slotCount = trainIndices.length;
+  if (depth <= 0 || slotCount === 0) {
+    return mastery;
+  }
+
+  const state = normalizeState(mastery, slotCount);
+  const priorContiguous = contiguousMasteredCount(state.masteredSlots);
+  let creditedAny = false;
+
+  for (let slot = 0; slot < slotCount; slot += 1) {
+    const moveIndex = trainIndices[slot]!;
+    if (moveIndex >= depth) {
+      continue;
+    }
+    if ((state.slotRepetitionsRemaining[slot] ?? 0) > 0) {
+      continue;
+    }
+    if (state.recoveryTrainSlot === slot) {
+      continue;
+    }
+    if (!state.masteredSlots[slot]) {
+      state.masteredSlots[slot] = true;
+      creditedAny = true;
+    }
+  }
+
+  if (!creditedAny) {
+    return mastery;
+  }
+
+  const nextContiguous = contiguousMasteredCount(state.masteredSlots);
+  const skipInterval = Math.max(
+    MASTERED_SKIP_COUNT,
+    state.skipInterval ?? MASTERED_SKIP_COUNT,
+  );
+  let skipRemaining = state.skipRemaining;
+  if (nextContiguous > priorContiguous) {
+    skipRemaining = skipInterval;
+  }
+
+  return toLineMasteryResult(state, skipRemaining, skipInterval);
+}
+
 export function computeDrillPlan(
   trainIndices: readonly number[],
   mastery: CourseLineMasteryState,
@@ -193,7 +263,22 @@ export function computeDrillPlan(
 
   const stemSkipDepth = Math.max(0, options?.stemSkipDepth ?? 0);
   if (stemSkipDepth > 0) {
-    drillAtIndices = drillAtIndices.filter((index) => index >= stemSkipDepth);
+    // Keep any slot that still needs quiz (false / recovery), even below the
+    // stem depth. Stem skip only drops already-mastered indices.
+    drillAtIndices = drillAtIndices.filter((index) => {
+      if (index >= stemSkipDepth) {
+        return true;
+      }
+      const slot = moveIndexToSlot(trainIndices, index);
+      if (slot === undefined) {
+        return true;
+      }
+      return slotNeedsQuiz(
+        state.masteredSlots,
+        state.slotRepetitionsRemaining,
+        slot,
+      );
+    });
     startMoveIndex =
       drillAtIndices.length > 0
         ? drillAtIndices[0]!
@@ -501,13 +586,5 @@ export function updateLineMastery(
     state.skipRemaining = Math.max(0, priorSkipRemaining - 1);
   }
 
-  return {
-    masteredSlots: state.masteredSlots,
-    skipRemaining: state.skipRemaining,
-    skipInterval,
-    slotRepetitionsRemaining: state.slotRepetitionsRemaining.some((value) => value > 0)
-      ? state.slotRepetitionsRemaining
-      : undefined,
-    recoveryTrainSlot: state.recoveryTrainSlot,
-  };
+  return toLineMasteryResult(state, state.skipRemaining, skipInterval);
 }
