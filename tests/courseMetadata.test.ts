@@ -95,6 +95,7 @@ describe('courseMetadata', () => {
         metadata: {
           generatedAt: nestedAt,
           builderCommitSha: 'abc123',
+          builderSourceHash: 'tree456',
         },
       }),
     ).toEqual({
@@ -107,6 +108,7 @@ describe('courseMetadata', () => {
         numGamesUsed: 0,
       },
       builderCommitSha: 'abc123',
+      builderSourceHash: 'tree456',
     });
   });
 

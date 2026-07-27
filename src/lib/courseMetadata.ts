@@ -44,6 +44,7 @@ export function resolveCourseMetadata(course: CourseMetadataSource): CourseMetad
     ? course.metadata!.filters!
     : course.filters;
   const builderCommitSha = course.metadata?.builderCommitSha;
+  const builderSourceHash = course.metadata?.builderSourceHash;
 
   const metadata: CourseMetadata = {};
   if (generatedAt) {
@@ -58,6 +59,9 @@ export function resolveCourseMetadata(course: CourseMetadataSource): CourseMetad
   if (builderCommitSha) {
     metadata.builderCommitSha = builderCommitSha;
   }
+  if (builderSourceHash) {
+    metadata.builderSourceHash = builderSourceHash;
+  }
   return metadata;
 }
 
@@ -66,7 +70,8 @@ export function isCourseMetadataEmpty(metadata: CourseMetadata): boolean {
     metadata.generatedAt == null &&
     metadata.algorithm == null &&
     metadata.filters == null &&
-    metadata.builderCommitSha == null
+    metadata.builderCommitSha == null &&
+    metadata.builderSourceHash == null
   );
 }
 

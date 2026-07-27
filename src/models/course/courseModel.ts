@@ -34,6 +34,8 @@ export interface ICourse extends Document {
   cpThreshold: number;
   /** Opening repertoire line selection strategy (omitted on engine-built courses). */
   algorithm?: CourseAlgorithm;
+  /** Opening → Black browse hub membership. */
+  blackBrowseFamilySlug?: string;
   /** White opening hub grouping for 1.e4 / 1.d4 family courses. */
   repertoireCollection?: 'e4' | 'd4';
   filters: {
@@ -70,6 +72,7 @@ const courseSchema = new Schema<ICourse>(
     confirmDepth: { type: Number, required: true },
     cpThreshold: { type: Number, required: true },
     algorithm: { type: String },
+    blackBrowseFamilySlug: { type: String },
     repertoireCollection: { type: String },
     filters: {
       minElo: { type: Number, required: true },
@@ -110,6 +113,7 @@ const courseSchema = new Schema<ICourse>(
         numGamesUsed: { type: Number },
       },
       builderCommitSha: { type: String },
+      builderSourceHash: { type: String },
     },
   },
   { collection: 'courses' },
