@@ -49,6 +49,11 @@ export type CourseMetadata = {
   };
   /** Git commit of endchess-course-builder at publish time. */
   builderCommitSha?: string;
+  /**
+   * Content-stable hash of course-builder at publish time
+   * (`git rev-parse HEAD^{tree}`, or sha256 of `src/` when git is unavailable).
+   */
+  builderSourceHash?: string;
 };
 
 export type GamePool = 'repertoire' | 'supplemental' | 'combined';
