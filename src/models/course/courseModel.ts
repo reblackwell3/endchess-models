@@ -6,6 +6,7 @@ import type {
   CoursePreviewThumbnail,
   CourseStem,
   GamePool,
+  LessonStatus,
   LessonTrainPosition,
   LessonType,
   ParentOpening,
@@ -157,6 +158,9 @@ export const CourseSection: Model<ICourseSection> = model<ICourseSection>(
 export interface ILesson extends Document {
   courseId: Types.ObjectId;
   sectionId: Types.ObjectId;
+  /** Content-addressed identity scoped to the course. */
+  lineKey: string;
+  status: LessonStatus;
   order: number;
   title: string;
   type: LessonType;
@@ -212,6 +216,13 @@ const lessonSchema = new Schema<ILesson>(
   {
     courseId: { type: Schema.Types.ObjectId, required: true, index: true },
     sectionId: { type: Schema.Types.ObjectId, required: true, index: true },
+    lineKey: { type: String, required: true },
+    status: {
+      type: String,
+      enum: ['active', 'removed'],
+      required: true,
+      default: 'active',
+    },
     order: { type: Number, required: true },
     title: { type: String, required: true },
     type: { type: String, required: true, default: 'line' },
@@ -268,7 +279,17 @@ const lessonSchema = new Schema<ILesson>(
   { collection: 'lessons' },
 );
 
-lessonSchema.index({ courseId: 1, sectionId: 1, order: 1 }, { unique: true });
+lessonSchema.index(
+  { courseId: 1, lineKey: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { lineKey: { $type: 'string' } },
+  },
+);
+lessonSchema.index(
+  { courseId: 1, sectionId: 1, order: 1 },
+  { unique: true, partialFilterExpression: { status: 'active' } },
+);
 
 export const Lesson: Model<ILesson> = model<ILesson>('Lesson', lessonSchema);
 
