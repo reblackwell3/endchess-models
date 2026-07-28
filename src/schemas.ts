@@ -16,6 +16,8 @@ export * from './models/raw/corpusPlayerModel';
 
 export * from './models/system/systemImportDataModel';
 export * from './models/system/promoCodeModel';
+export * from './models/system/workerHeartbeatModel';
+
 
 export * from './models/user/playerDataModel';
 export * from './models/user/userModel';

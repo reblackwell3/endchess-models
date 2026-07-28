@@ -6,7 +6,9 @@ export * from './analysis/moveQualityThresholds';
 export * from './analysis/classifyMoveQuality';
 export * from './analysis/lichessToChesscomRating';
 export * from './lib/contentCatalogMeta';
+export * from './lib/workerHeartbeat';
 export * from './lib/explorerCatalogMeta';
+
 export * from './lib/explorerIndexedGames';
 export * from './lib/gameEnrichment';
 export * from './lib/gameIdentity';
