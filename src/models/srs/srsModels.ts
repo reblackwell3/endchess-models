@@ -32,6 +32,7 @@ const srsCardSchema = new Schema<SrsCardDoc>(
     courseId: { type: String },
     phase: { type: String },
     lessonId: { type: String },
+    lineKey: { type: String },
     lessonTitle: { type: String },
     source: {
       type: String,
@@ -55,6 +56,7 @@ const srsCardSchema = new Schema<SrsCardDoc>(
 
 srsCardSchema.index({ providerId: 1, kind: 1, refId: 1 }, { unique: true });
 srsCardSchema.index({ providerId: 1, kind: 1, courseSlug: 1 });
+srsCardSchema.index({ courseSlug: 1, lineKey: 1 });
 srsCardSchema.index({ providerId: 1, kind: 1, dueAt: 1 });
 
 export const SrsCard =

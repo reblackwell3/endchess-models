@@ -38,6 +38,8 @@ export type SrsCardDoc = {
   courseId?: string;
   phase?: string;
   lessonId?: string;
+  /** Content-addressed course-line identity, scoped by courseSlug. */
+  lineKey?: string;
   lessonTitle?: string;
   source: CardSource;
   easeFactor: number;

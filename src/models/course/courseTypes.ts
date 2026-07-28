@@ -60,6 +60,7 @@ export type GamePool = 'repertoire' | 'supplemental' | 'combined';
 export type ParentOpening = 'e4' | 'caro-kann' | 'grunfeld';
 export type SectionKind = 'line-branch' | 'structure' | 'material';
 export type LessonType = 'line' | 'replay' | 'mistake';
+export type LessonStatus = 'active' | 'removed';
 
 /** Shared opening prefix catalog entry (index = stem id on the course). */
 export type CourseStem = {
