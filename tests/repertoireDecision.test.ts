@@ -143,4 +143,37 @@ describe('lesson repertoire handoff', () => {
     expect(lesson.validateSync()).toBeUndefined();
     expect(lesson.repertoireHandoff?.afterPly).toBe(4);
   });
+
+  it('allows lessons without a repertoire handoff', () => {
+    const lesson = new Lesson({
+      courseId: new Types.ObjectId(),
+      sectionId: new Types.ObjectId(),
+      lineKey: 'line-key',
+      order: 0,
+      title: 'Lesson',
+      type: 'line',
+      startFen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      movesUci: [],
+      movesSan: [],
+      trainSide: 'w',
+      sourceGameId: 'source',
+      sourceMeta: {
+        white: 'White',
+        black: 'Black',
+        whiteElo: 2500,
+        blackElo: 2500,
+        result: '1-0',
+      },
+      window: { fromPly: 0, toPly: 0 },
+      quality: {
+        avgCpLoss: 0,
+        maxCpLoss: 0,
+        halfMoveCount: 0,
+        confirmDepth: 0,
+      },
+    });
+
+    expect(lesson.validateSync()).toBeUndefined();
+    expect(lesson.repertoireHandoff).toBeUndefined();
+  });
 });
