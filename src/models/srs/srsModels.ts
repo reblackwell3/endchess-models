@@ -26,6 +26,7 @@ const srsCardSchema = new Schema<SrsCardDoc>(
     openingSans: { type: [String] },
     movesUci: { type: [String] },
     reviewStartIndex: { type: Number },
+    reviewEndIndex: { type: Number },
     quizAtIndices: { type: [Number] },
     courseSlug: { type: String },
     courseTitle: { type: String },
@@ -54,7 +55,22 @@ const srsCardSchema = new Schema<SrsCardDoc>(
   { timestamps: true, versionKey: false },
 );
 
-srsCardSchema.index({ providerId: 1, kind: 1, refId: 1 }, { unique: true });
+srsCardSchema.index(
+  { providerId: 1, kind: 1, refId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { kind: 'position' },
+    name: 'unique_position_card',
+  },
+);
+srsCardSchema.index(
+  { providerId: 1, kind: 1, refId: 1, reviewStartIndex: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { kind: 'puzzle' },
+    name: 'unique_puzzle_move_card',
+  },
+);
 srsCardSchema.index({ providerId: 1, kind: 1, courseSlug: 1 });
 srsCardSchema.index({ courseSlug: 1, lineKey: 1 });
 srsCardSchema.index({ providerId: 1, kind: 1, dueAt: 1 });

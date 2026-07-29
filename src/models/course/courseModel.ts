@@ -7,6 +7,7 @@ import type {
   CourseStem,
   GamePool,
   LessonStatus,
+  LessonRepertoireHandoff,
   LessonTrainPosition,
   LessonType,
   ParentOpening,
@@ -174,6 +175,8 @@ export interface ILesson extends Document {
   trainSide: TrainSide;
   /** Precomputed at publish; avoids recomputing train positions at read time. */
   trainPositions?: LessonTrainPosition[];
+  /** Optional boundary where runtime repertoire selection hands off training. */
+  repertoireHandoff?: LessonRepertoireHandoff;
   sourceGameId: string;
   sourceMeta: {
     white: string;
@@ -244,6 +247,20 @@ const lessonSchema = new Schema<ILesson>(
           setupUci: { type: String },
         },
       ],
+      default: undefined,
+    },
+    // Nested Schema so omitting handoff stays undefined (plain nested
+    // required fields otherwise fail validate on empty subdocs).
+    repertoireHandoff: {
+      type: new Schema(
+        {
+          decisionId: { type: String, required: true },
+          positionKey: { type: String, required: true },
+          afterPly: { type: Number, required: true, min: 0 },
+        },
+        { _id: false },
+      ),
+      required: false,
       default: undefined,
     },
     sourceGameId: { type: String, required: true },

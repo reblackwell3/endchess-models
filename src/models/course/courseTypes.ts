@@ -14,6 +14,14 @@ export type LessonTrainPosition = {
   setupUci?: string;
 };
 
+/** Runtime link from a lesson boundary back to a repertoire decision. */
+export type LessonRepertoireHandoff = {
+  decisionId: string;
+  positionKey: string;
+  /** Ply boundary after which the repertoire choice is resolved. */
+  afterPly: number;
+};
+
 export type CoursePhase =
   | 'opening'
   | 'middlegame'
