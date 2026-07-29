@@ -1,9 +1,12 @@
 import { OpeningBranchFen } from '../models/raw/openingBranchFenModel';
 import { OpeningFamily } from '../models/raw/openingFamilyModel';
 import {
+  legacyBrokenDiacriticFamilySlug,
+  legacyBrokenDiacriticSlugify,
   openingFamilyFromName,
   openingFamilySlug,
   openingVariationSlug,
+  openingVariationSuffix,
 } from './openingSeoSlugs';
 import {
   loadOpeningReferenceIndex,
@@ -92,8 +95,25 @@ export async function loadOpeningCatalog(): Promise<OpeningCatalog> {
       const familiesById = new Map<number, OpeningFamilyRecord>();
       const familiesBySlug = new Map<string, OpeningFamilyRecord>();
       for (const family of familyRows) {
-        familiesById.set(family.familyId, family);
-        familiesBySlug.set(family.slug, family);
+        // Prefer ASCII slug for outbound links even before DB backfill.
+        const canonicalSlug =
+          openingFamilySlug(family.name) || family.slug.trim().toLowerCase();
+        const record: OpeningFamilyRecord = {
+          familyId: family.familyId,
+          name: family.name,
+          slug: canonicalSlug,
+        };
+        familiesById.set(record.familyId, record);
+        const aliases = new Set(
+          [
+            family.slug.trim().toLowerCase(),
+            canonicalSlug,
+            legacyBrokenDiacriticFamilySlug(family.name),
+          ].filter(Boolean),
+        );
+        for (const alias of aliases) {
+          familiesBySlug.set(alias, record);
+        }
       }
 
       const linesById = new Map<number, OpeningLineRecord>();
@@ -143,9 +163,16 @@ export function resolveLineByPath(
   const normalizedVariation = variationSlug.trim().toLowerCase();
   const normalizedEco = eco?.trim().toLowerCase();
   const candidates =
-    catalog.linesByFamilyId.get(family.familyId)?.filter(
-      (line) => line.variationSlug === normalizedVariation,
-    ) ?? [];
+    catalog.linesByFamilyId.get(family.familyId)?.filter((line) => {
+      if (line.variationSlug === normalizedVariation) {
+        return true;
+      }
+      // Legacy diacritic-broken variation slugs (Sämisch → s-misch).
+      return (
+        legacyBrokenDiacriticSlugify(openingVariationSuffix(line.opening)) ===
+        normalizedVariation
+      );
+    }) ?? [];
 
   if (candidates.length === 0) {
     return null;

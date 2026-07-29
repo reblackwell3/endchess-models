@@ -32,6 +32,8 @@ export type SrsCardDoc = {
   openingSans?: string[];
   movesUci?: string[];
   reviewStartIndex?: number;
+  /** Exclusive end of this puzzle card's autoplay segment. */
+  reviewEndIndex?: number;
   quizAtIndices?: number[];
   courseSlug?: string;
   courseTitle?: string;
