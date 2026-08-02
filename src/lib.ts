@@ -35,6 +35,7 @@ export * from './lib/userImportedGameAnalysisStatus';
 export * from './lib/importJobStatus';
 export * from './lib/courseLineMastery';
 export * from './lib/courseLineKey';
+export * from './lib/courseSrsCardReconcile';
 export * from './lib/courseMetadata';
 export * from './lib/extractCourseStems';
 export * from './lib/repertoireDecision';
