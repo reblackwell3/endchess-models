@@ -23,6 +23,9 @@ const playerDataSchema = new Schema<IPlayerData>({
   puzzle_elo: { type: Number, required: false },
 });
 
+// Kept non-unique because legacy accounts may contain duplicate feature rows.
+playerDataSchema.index({ providerId: 1, feature: 1 });
+
 playerDataSchema.statics.findOrCreatePopulated = async function (
   providerId: string,
   feature: string,

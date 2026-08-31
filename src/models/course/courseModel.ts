@@ -123,6 +123,7 @@ const courseSchema = new Schema<ICourse>(
 
 /** One row per slug+semver so prior versions stay in MongoDB for rollback. */
 courseSchema.index({ slug: 1, version: 1 }, { unique: true });
+courseSchema.index({ slug: 1, generatedAt: -1 });
 /** Per-user mistake course parts (mistakes-1, mistakes-2, …). */
 courseSchema.index({ providerId: 1, slug: 1 }, { unique: true, sparse: true });
 
@@ -150,6 +151,7 @@ const courseSectionSchema = new Schema<ICourseSection>(
 );
 
 courseSectionSchema.index({ courseId: 1, slug: 1 }, { unique: true });
+courseSectionSchema.index({ courseId: 1, order: 1 });
 
 export const CourseSection: Model<ICourseSection> = model<ICourseSection>(
   'CourseSection',
@@ -307,6 +309,7 @@ lessonSchema.index(
   { courseId: 1, sectionId: 1, order: 1 },
   { unique: true, partialFilterExpression: { status: 'active' } },
 );
+lessonSchema.index({ courseId: 1, order: 1 });
 
 export const Lesson: Model<ILesson> = model<ILesson>('Lesson', lessonSchema);
 

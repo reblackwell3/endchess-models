@@ -24,6 +24,14 @@ const itemEventSchema = new Schema<IItemEvent>({
 itemEventSchema.index({ providerId: 1, feature: 1, timestamp: -1 });
 itemEventSchema.index({ providerId: 1, feature: 1, eventType: 1, timestamp: -1 });
 itemEventSchema.index({ providerId: 1, feature: 1, itemId: 1, eventType: 1 });
+itemEventSchema.index({
+  providerId: 1,
+  feature: 1,
+  itemId: 1,
+  eventType: 1,
+  timestamp: 1,
+});
+itemEventSchema.index({ itemId: 1, eventType: 1, _id: -1 });
 
 // Create the ItemEvent model
 const ItemEvent: Model<IItemEvent> = mongoose.model<IItemEvent>(

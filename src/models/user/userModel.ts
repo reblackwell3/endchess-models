@@ -235,6 +235,9 @@ const userSchema = new Schema<IUser>(
   { timestamps: true },
 );
 
+// Emails are optional and may be shared by legacy/social-provider accounts.
+userSchema.index({ email: 1 }, { sparse: true });
+
 userSchema.statics.findOrCreate = async function (
   profile: {
     id: string;

@@ -39,6 +39,18 @@ const corpusPlayerSchema = new Schema<ICorpusPlayerDocument>(
 corpusPlayerSchema.index({ importFrom: 1, nameKey: 1 }, { unique: true });
 corpusPlayerSchema.index({ importFrom: 1, slugAliases: 1 }, { unique: true });
 corpusPlayerSchema.index({ importFrom: 1, avgRating: -1, gameCount: -1 });
+corpusPlayerSchema.index({
+  importFrom: 1,
+  avgRating: -1,
+  gameCount: -1,
+  nameKey: 1,
+});
+corpusPlayerSchema.index({
+  importFrom: 1,
+  maxRating: -1,
+  gameCount: -1,
+  nameKey: 1,
+});
 
 export const CorpusPlayer: Model<ICorpusPlayerDocument> =
   model<ICorpusPlayerDocument>('CorpusPlayer', corpusPlayerSchema);

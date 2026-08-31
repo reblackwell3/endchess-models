@@ -138,6 +138,20 @@ gameSchema.index({ uuid: 1 }, { background: true });
 gameSchema.index({ import_from: 1, import_batch: 1 });
 gameSchema.index({ import_from: 1, 'white.username': 1 });
 gameSchema.index({ import_from: 1, 'black.username': 1 });
+gameSchema.index(
+  { import_from: 1, 'white.username': 1, end_time: -1 },
+  {
+    collation: { locale: 'en', strength: 2 },
+    name: 'player_white_recent',
+  },
+);
+gameSchema.index(
+  { import_from: 1, 'black.username': 1, end_time: -1 },
+  {
+    collation: { locale: 'en', strength: 2 },
+    name: 'player_black_recent',
+  },
+);
 gameSchema.index({ import_from: 1, openingFamilyId: 1 });
 gameSchema.index({ import_from: 1, openingLineId: 1 });
 gameSchema.index({ end_time: 1 });
